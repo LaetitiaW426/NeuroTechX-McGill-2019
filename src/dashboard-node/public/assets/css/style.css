@@ -146,12 +146,12 @@ canvas {
 
 }
 .range-slider {
-  width: 100%;
+  display: inline-block;
+  margin-right: 5%;
+  width: 5%;
 }
+
 .input-range {
-   float: left;
-   position: relative;
-   bottom: 65px;
    width: 125px;
    height: 10px;
    transform: rotate(270deg);
@@ -301,7 +301,7 @@ canvas {
 /* Testing Dashboard Arrows */
 
 .neurofeedback{
-  margin-top: 20px;
+  margin-top: 5px;
   width: 100%;
 }
 
@@ -339,11 +339,12 @@ canvas {
 }
 
 .neurofeedback-controls{
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
 .neurofeedback-label{
   font-size: 2.5vmax;
+  font-weight: bold;
 }
 
 .neuro-left{
@@ -356,7 +357,7 @@ canvas {
 
 .neurofeedback-toggle{
   position: absolute;
-  left: 47.3%;
+  left: 47.6%;
   display: inline-block;
   border: 0;
   background: transparent;
