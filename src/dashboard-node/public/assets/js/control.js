@@ -5,6 +5,11 @@ $(document).ready(function() {
   let active = [1,1,1,1,1,1,1,1];
   var collecting = false;
 
+  var btn = $(".neurofeedback-toggle");
+  btn.click(function() {
+    btn.toggleClass("paused");
+    return false;
+  });
   //Used for showcasing other dashboard or training dashboard
   $('#tabs li').on('click', function() {
     var tab = $(this).data('tab');
@@ -106,6 +111,8 @@ $(document).ready(function() {
       $(".timer").val(range);
     }
   });
+
+
 
   /* IMPORTANT BLOCK FOR DATA COLLECTION! */
   // If one of the collection buttons are clicked does the following:
