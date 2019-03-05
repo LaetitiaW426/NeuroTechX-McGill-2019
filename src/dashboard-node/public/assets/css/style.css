@@ -76,6 +76,24 @@ a.navbar-item{
   margin-top: 0rem;
 }
 
+/* Overhead */
+
+.overhead{
+  line-height: 60px;
+}
+
+.trial{
+  display: inline-block;
+  height: 20px;
+  float: right;
+  font-size: 20px;
+  vertical-align: middle;
+}
+
+.title{
+  display: inline-block;
+  vertical-align: middle;
+}
 /* Controls */
 #controls-text {
   padding-top: 20px;
@@ -98,13 +116,15 @@ a.navbar-item{
 
 }
 .range-slider {
-  margin-top: 15px;
   width: 100%;
-  float: left;
 }
 .input-range {
-           width:75%;
-           height:10px;
+           float: left;
+           position: relative;
+           bottom: 65px;
+           width: 125px;
+           height: 10px;
+           transform: rotate(270deg);
            background:#efefef;
            outline:none;
            -webkit-appearance: none;
@@ -171,6 +191,7 @@ a.navbar-item{
     cursor: pointer;
     outline: none;
 }
+
 
 .imagery:hover{
     /* background-color: green; */

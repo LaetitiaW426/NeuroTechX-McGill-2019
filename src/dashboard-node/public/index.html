@@ -18,6 +18,8 @@
 
 
 
+
+
       <script>
         var socket = io();
     </script>
@@ -51,9 +53,15 @@
     <div id="tab-content">
       <div class="is-active" data-content="1">
         <div class="container">
+          <div class="overhead">
               <h1 class="title">
                 Training Dashboard
               </h1>
+              <form class="trial">
+                Trial Name:
+                <input type="text" name="trial-input"><br>
+              </form>
+          </div>
               <div class="graphview">
                 <article class="media" id="media-sensor1">
                   <figure class="media-left">
@@ -196,6 +204,7 @@
                   <div class="range-slider">
                     <input class="input-range" type="range" value="0" min="0" max="100" step="1" >
                   </div>
+
                 </div>
 
 
