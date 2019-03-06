@@ -8,8 +8,7 @@ const fs = require('fs');
 
 
 const createCSVWriter = require('csv-writer').createObjectCsvWriter;
-var csvTimeWriter;
-var csvFFTWriters;
+var csvTimeWriter, csvFFTWriters;
 
 //Will determine if collecting and sending to file currently.
 //Other values will only be updated if collecting is true!
@@ -65,7 +64,6 @@ function getTimeValue() {
 }
 
 /* Sets the csvwriters to the correct paths! */
-
 function setupCsvWriters(){
     let date = new Date();
     var day = date.getFullYear() + '-' + date.getMonth() + '-' +
