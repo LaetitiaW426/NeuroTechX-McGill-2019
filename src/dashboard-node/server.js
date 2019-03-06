@@ -53,7 +53,7 @@ for (i=0; i<125; i++) {
 var fftSamples = [fftHeaderToWrite];
 
 /* These are manual settings that we can use to keep track of testNumber as an example */
-var settings = JSON.parse(fs.readFileSync('data_settings.json', 'utf8'));
+var settings = JSON.parse(fs.readFileSync(__dirname + '/data_settings.json', 'utf8'));
 console.log("Currently running on these settings: \n" + settings);
 let testNumber = settings['testNumber'];
 
@@ -193,20 +193,21 @@ client.events.on('sample', function(data) {
                       data[index] is the eeg value at sensor-index
                 }
   */
+  let time = getTimeValue();
+
 
   if (collecting) {
-    let time = getTimeValue();
     let toWrite = {'time': time, 'data': data['data']};
-
     if (data['type'] == 'fft') {
       appendSample(toWrite, type="fft"); // write to file
-      io.sockets.emit('fft', {'time': time, 'eeg': data}); // send socket to client
     }
     else {
       appendSample(toWrite, type="time");
-      io.sockets.emit('timeseries', {'time': time, 'eeg': data}); // send socket to client
     }
   }
+  io.sockets.emit('fft', {'time': time, 'eeg': data}); // send socket to client
+  io.sockets.emit('timeseries', {'time': time, 'eeg': data}); // send socket to client
+
 });
 
 
