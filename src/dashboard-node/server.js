@@ -49,7 +49,12 @@ for (i=0; i<125; i++) {
   fftHeaderToWrite['f' + (i+1)] = (i+1) + 'Hz';
 }
 
-var fftSamples = [fftHeaderToWrite];
+/* initialize fftSamples to a list of headers for each channel */
+const fftSamplesHeaders = [];
+for (i=0; i<8; i++) {
+  fftSamplesHeaders.push([fftHeaderToWrite]);
+}
+var fftSamples = fftSamplesHeaders;
 
 /* These are manual settings that we can use to keep track of testNumber as an example */
 var settings = JSON.parse(fs.readFileSync(__dirname + '/data_settings.json', 'utf8'));
@@ -67,8 +72,8 @@ function getTimeValue() {
 function setupCsvWriters(){
     let date = new Date();
     var day = date.getFullYear() + '-' + date.getMonth() + '-' +
-                   date.getDate() + '-' + date.getHours() + '-' +
-                   date.getMinutes() + '-' + date.getSeconds()
+                   date.getDate() + '-' + date.getHours() + ':' +
+                   date.getMinutes() + ':' + date.getSeconds();
 
     csvTimeWriter = createCSVWriter({
           path: __dirname + '/data/time-test-' + testNumber + '-' + direction + '-'
@@ -108,10 +113,12 @@ function appendSample(data, type){
     for (i=0; i<8; i++) {
       fftSamplesToPush.push({time: data['time']});
       for (j=0; j<125; j++) {
-        fftSamplesToPush[i]['f' + (i+1)] = channelData[i][j];
+         fftSamplesToPush[i]['f' + (j+1)] = channelData[i][j];
       }
     }
-    fftSamples.push(fftSamplesToPush);
+    for (i=0; i<8; i++) {
+      fftSamples[i].push(fftSamplesToPush[i]);
+    }
   }
 
   else if (type == 'time') {
@@ -154,7 +161,7 @@ function endTest(saved){
     });
   }
   timeSamples = [timeHeaderToWrite];
-  fftSamples = [fftHeaderToWrite];
+  fftSamples = fftSamplesHeaders;
 }
 
 /* Creates a UDP client to listen to the OpenBCI GUI */
@@ -192,7 +199,6 @@ client.events.on('sample', function(data) {
                 }
   */
   let time = getTimeValue();
-
 
   if (collecting) {
     let toWrite = {'time': time, 'data': data['data']};
