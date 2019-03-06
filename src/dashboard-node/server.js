@@ -201,7 +201,7 @@ client.events.on('sample', function(data) {
       io.sockets.emit('fft', {'time': time, 'eeg': data}); // send socket to client
     }
     else {
-      appendSample(toWrite, type="time")
+      appendSample(toWrite, type="time");
       io.sockets.emit('timeseries', {'time': time, 'eeg': data}); // send socket to client
     }
   }
