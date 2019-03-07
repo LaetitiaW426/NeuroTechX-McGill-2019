@@ -204,37 +204,47 @@ $(document).ready(function() {
     lines.push(new TimeSeries());
   }
 
-  let timeElapsed = new Date().getTime();
+  let timeElapsed = new Date().getTime()
 
-  socket.on('timeseries', function(timeseries) {
-      // console.log(channelOne.data);
-        for(i = 0; i < 8; i++){
-          lines[i].append(new Date().getTime(), timeseries['eeg']['data'][i]);
-        }
+let counter = 1;
 
-      // if (counter == 10) {
-        // let newData = (new Date().getTime(), timeseries['eeg']['data'][0]);
-        // console.log(timeseries['eeg']['data'][0])
-        // console.log(counter)
-        if (new Date().getTime() -  timeElapsed > 1000){
-          for(i = 0; i < 8; i++){
-            charts[i].addTimeSeries(lines[i], {lineWidth:2,
-                                               strokeStyle:colors[i]});
-            lines[i] = new TimeSeries();
-          }
-          timeElapsed = new Date().getTime();
-        }
 
-          // counter = 0;
-      // } else {
-          // ends with 0
-          // counter++;
-      // }
-      // console.log(timeseries['eeg']['data'][0]);
+socket.on('timeseries', function(timeseries) {
+    if(counter % 20 == 0){
+      counter = 1;
+    }
+    else {
+      for(i = 0; i < 8; i++){
+        lines[i].append(timeseries['time'], timeseries['eeg']['data'][i]);
+      }
+    }
+    // console.log(channelOne.data);
 
-      // console.log(channelOne.data + " and time: " + getTimeValue());
-      // sensorChart1.push(newData);
-  });
+
+    // if (counter == 10) {
+      // let newData = (new Date().getTime(), timeseries['eeg']['data'][0]);
+      // console.log(timeseries['eeg']['data'][0])
+      // console.log(counter)
+        // counter = 0;
+    // } else {
+        // ends with 0
+        // counter++;
+    // }
+    // console.log(timeseries['eeg']['data'][0]);
+
+    // console.log(channelOne.data + " and time: " + getTimeValue());
+    // sensorChart1.push(newData);
+});
+
+setInterval(function(){
+  for(i = 0; i < 8; i++){
+    charts[i].addTimeSeries(lines[i], {lineWidth:2,
+                                       strokeStyle:colors[i]});
+    timeElapsed = new Date().getTime();
+    lines[i] = new TimeSeries();
+  }
+}, 1000);
+
 
   // setInterval(function() {
   //   line.append(new Date().getTime(), Math.random())
@@ -292,8 +302,8 @@ $(document).ready(function() {
   });
 
 
-  let timeElapsedFft = new Date().getTime()
-
+  // let timeElapsedFft = new Date().getTime()
+  //
   socket.on('fft', function(fft) {
       //data['data'][i] is the row of all y values from 1hz to 125hz
       if(fft['eeg']['data'][0].length == 125 && (new Date().getTime() -  timeElapsedFft > 3000)){
