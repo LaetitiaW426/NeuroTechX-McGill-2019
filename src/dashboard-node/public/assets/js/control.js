@@ -210,7 +210,7 @@ let counter = 1;
 
 
 socket.on('timeseries', function(timeseries) {
-    if(counter % 20 == 0){
+    if(counter % 5 == 0){
       counter = 1;
     }
     else {
@@ -302,7 +302,7 @@ setInterval(function(){
   });
 
 
-  // let timeElapsedFft = new Date().getTime()
+  let timeElapsedFft = new Date().getTime()
   //
   socket.on('fft', function(fft) {
       //data['data'][i] is the row of all y values from 1hz to 125hz
