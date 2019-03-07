@@ -245,7 +245,7 @@ setInterval(function(){
   var z = [];
   var timeElapsed = new Date().getTime();
   var zTemp = [];
-  Plotly.plot('spectrogram', {data: [{z: [], type: 'heatmap'}],
+  Plotly.plot('spectrogram', {data: [{z: [], type: 'heatmap', transpose: true}],
                               layout: layout});
 
 
