@@ -142,10 +142,7 @@ $(document).ready(function() {
     var Time = dateBuffer.getTime();
     return Time;
   }
-<<<<<<< HEAD
-  // var charts = [], lines = [];
-  // var colors = ["#6dbe3d","#c3a323","#EB9486","#787F9A","#97A7B3","#9F7E69","#d97127", "#259188"]
-=======
+
   var charts = [], lines = [];
   var colors = ["#6dbe3d","#c3a323","#EB9486","#787F9A","#97A7B3","#9F7E69","#d97127", "#259188"]
 
@@ -157,14 +154,14 @@ $(document).ready(function() {
     charts[i].streamTo(document.getElementById('smoothie-chart-' + (i+1)), 1000);
     lines.push(new TimeSeries());
   }
-
-  let timeElapsed = new Date().getTime()
+  //
+  // let timeElapsed = new Date().getTime()
 
 let counter = 1;
 
 
 socket.on('timeseries', function(timeseries) {
-    if(counter % 5 == 0){
+    if(counter % 20 == 0){
       counter = 1;
     }
     else {
@@ -203,7 +200,6 @@ setInterval(function(){
   // setInterval(function() {
   //   line.append(new Date().getTime(), Math.random())
   // }, 100);
->>>>>>> c39290bd1a6a05dbfeadbf971bc7ef1986bb8722
   //
   // for(i = 0; i < 8; i++) {
   //   charts.push(new SmoothieChart({grid:{fillStyle:'transparent'},
@@ -251,26 +247,8 @@ setInterval(function(){
   var zTemp = [];
   Plotly.plot('spectrogram', {data: [{z: [], type: 'heatmap'}],
                               layout: layout});
-  socket.on('fft', function(fft) {
-    currentTime = new Date().getTime();
 
-    // console.log(fft['time'] - initialTime);
-    for (i=0; i<125; i++)
-    {
-      zTemp.push(fft['eeg']['data'][0][i]); //0th channel
-    }
-    z.push([zTemp]);
-    zTemp = [];
 
-    // if (currentTime - timeElapsed > 1000) {
-      timeElapsed = currentTime;
-      Plotly.extendTraces('spectrogram', {
-        z: z
-      }, [0])
-      z = [];
-    // }
-
-  });
   var ctx = document.getElementById('fft-chart-1').getContext('2d');
   var fftLabels = [];
   for(i = 1; i <= 125; i++){
@@ -286,6 +264,8 @@ setInterval(function(){
       backgroundColor: "rgba(255, 99, 132, 0)"
     });
   }
+
+
   var chart = new Chart(ctx, {
       // The type of chart we want to create
       type: 'line',
@@ -303,9 +283,8 @@ setInterval(function(){
       }
   });
 
+  timeElapsedFft = new Date().getTime();
 
-  let timeElapsedFft = new Date().getTime()
-  //
   socket.on('fft', function(fft) {
       //data['data'][i] is the row of all y values from 1hz to 125hz
       if(fft['eeg']['data'][0].length == 125 && (new Date().getTime() -  timeElapsedFft > 3000)){
@@ -316,6 +295,24 @@ setInterval(function(){
           });
           chart.update();
           timeElapsedFft = new Date().getTime();
+
+          currentTime = new Date().getTime();
+
+          // console.log(fft['time'] - initialTime);
+          for (i=0; i<125; i++)
+          {
+            zTemp.push(fft['eeg']['data'][0][i]); //0th channel
+          }
+          z.push([zTemp]);
+          zTemp = [];
+
+          // if (currentTime - timeElapsed > 1000) {
+            timeElapsed = currentTime;
+            Plotly.extendTraces('spectrogram', {
+              z: z
+            }, [0])
+            z = [];
+          // }
       }
 
 
