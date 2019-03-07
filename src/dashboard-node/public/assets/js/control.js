@@ -288,32 +288,32 @@ setInterval(function(){
   timeElapsedFft = new Date().getTime();
   timeElapsedSpec = new Date().getTime();
 
-  socket.on('fft', function(fft) {
-      //data['data'][i] is the row of all y values from 1hz to 125hz
-      if(fft['eeg']['data'][0].length == 125 && (new Date().getTime() -  timeElapsedFft > 3000)){
-          let counter = 0;
-          chart.data.datasets.forEach((dataset) => {
-              dataset.data = fft['eeg']['data'][counter];
-              counter++;
-          });
-          chart.update();
-          timeElapsedFft = new Date().getTime();
-
-          currentTime = new Date().getTime();
-
-          // console.log(fft['time'] - initialTime);
-          for (i=0; i<125; i++)
-          {
-            zTemp.push(fft['eeg']['data'][0][i]); //0th channel
-          }
-          z.push([zTemp]);
-          zTemp = [];
-
-          timeElapsedSpec = currentTime;
-          Plotly.extendTraces('spectrogram', {
-            z: z
-          }, [0])
-          z = [];
-      }
-  });
+  // socket.on('fft', function(fft) {
+  //     //data['data'][i] is the row of all y values from 1hz to 125hz
+  //     if(fft['eeg']['data'][0].length == 125 && (new Date().getTime() -  timeElapsedFft > 3000)){
+  //         let counter = 0;
+  //         chart.data.datasets.forEach((dataset) => {
+  //             dataset.data = fft['eeg']['data'][counter];
+  //             counter++;
+  //         });
+  //         chart.update();
+  //         timeElapsedFft = new Date().getTime();
+  //
+  //         currentTime = new Date().getTime();
+  //
+  //         // console.log(fft['time'] - initialTime);
+  //         for (i=0; i<125; i++)
+  //         {
+  //           zTemp.push(fft['eeg']['data'][0][i]); //0th channel
+  //         }
+  //         z.push([zTemp]);
+  //         zTemp = [];
+  //
+  //         timeElapsedSpec = currentTime;
+  //         Plotly.extendTraces('spectrogram', {
+  //           z: z
+  //         }, [0])
+  //         z = [];
+  //     }
+  // });
 });
