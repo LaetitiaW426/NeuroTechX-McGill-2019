@@ -284,6 +284,7 @@ setInterval(function(){
   });
 
   timeElapsedFft = new Date().getTime();
+  timeElapsedSpec = new Date().getTime();
 
   socket.on('fft', function(fft) {
       //data['data'][i] is the row of all y values from 1hz to 125hz
@@ -306,13 +307,12 @@ setInterval(function(){
           z.push([zTemp]);
           zTemp = [];
 
-          // if (currentTime - timeElapsed > 1000) {
-            timeElapsed = currentTime;
-            Plotly.extendTraces('spectrogram', {
-              z: z
-            }, [0])
-            z = [];
-          // }
+          timeElapsedSpec = currentTime;
+          console.log('hi')
+          Plotly.extendTraces('spectrogram', {
+            z: z
+          }, [0])
+          z = [];
       }
   });
 });
