@@ -72,8 +72,8 @@ function getTimeValue() {
 function setupCsvWriters(){
     let date = new Date();
     var day = date.getFullYear() + '-' + date.getMonth() + '-' +
-                   date.getDate() + '-' + date.getHours() + ':' +
-                   date.getMinutes() + ':' + date.getSeconds();
+                   date.getDate() + '-' + date.getHours() + '-' +
+                   date.getMinutes() + '-' + date.getSeconds();
 
     csvTimeWriter = createCSVWriter({
           path: __dirname + '/data/time-test-' + testNumber + '-' + direction + '-'
