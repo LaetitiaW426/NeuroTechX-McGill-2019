@@ -235,11 +235,11 @@ setInterval(function(){
   const layout = {
   title: "Spectrogram",
   xaxis: {
-    dtick: "log_10(2)",
+    // dtick: "log_10(2)",
     ticks: "Time [s]",
-    type: "log"
+    // type: "log"
   },
-  yaxis: {"ticks": "Frequency [kHz]"}
+  yaxis: {ticks: "Frequency [kHz]"}
   }
 
   var z = [];
@@ -301,7 +301,7 @@ setInterval(function(){
           // console.log(fft['time'] - initialTime);
           for (i=0; i<125; i++)
           {
-            zTemp.push(fft['eeg']['data'][0][i]); //0th channel
+            zTemp.push(Math.log(Math.abs(fft['eeg']['data'][0][i])+1)); //0th channel
           }
           z.push([zTemp]);
           zTemp = [];
@@ -314,10 +314,5 @@ setInterval(function(){
             z = [];
           // }
       }
-
-
   });
-
-
-
 });
