@@ -235,9 +235,9 @@ setInterval(function(){
   const layout = {
   title: "Spectrogram",
   xaxis: {
-    dtick: "log_10(2)",
+    // dtick: "log_10(2)",
     ticks: "Time [s]",
-    type: "log"
+    // type: "log"
   },
   yaxis: {"ticks": "Frequency [kHz]"}
   }
