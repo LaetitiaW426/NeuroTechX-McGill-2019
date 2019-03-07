@@ -1,8 +1,9 @@
+// const { app, BrowserWindow } = require('electron');
 const dgram = require('dgram');
 const events = require('events');
 const express = require('express');
-const app = express();
-const server = app.listen(3000);
+const app_express = express();
+const server = app_express.listen(3000);
 const io = require('socket.io').listen(server);
 const fs = require('fs');
 
@@ -72,8 +73,8 @@ function getTimeValue() {
 function setupCsvWriters(){
     let date = new Date();
     var day = date.getFullYear() + '-' + date.getMonth() + '-' +
-                   date.getDate() + '-' + date.getHours() + ':' +
-                   date.getMinutes() + ':' + date.getSeconds();
+                   date.getDate() + '-' + date.getHours() + '-' +
+                   date.getMinutes() + '-' + date.getSeconds();
 
     csvTimeWriter = createCSVWriter({
           path: __dirname + '/data/time-test-' + testNumber + '-' + direction + '-'
@@ -81,7 +82,6 @@ function setupCsvWriters(){
           header: timeHeader,
           append: true
     });
-
     csvFFTWriters = [];
     for (i=0; i<8; i++) {
       csvFFTWriters.push(createCSVWriter({
@@ -200,19 +200,20 @@ client.events.on('sample', function(data) {
   */
   let time = getTimeValue();
 
-  if (collecting) {
-    let toWrite = {'time': time, 'data': data['data']};
-    if (data['type'] == 'fft') {
+
+  let toWrite = {'time': time, 'data': data['data']};
+  if (data['type'] == 'fft') {
+    if (collecting) {
       appendSample(toWrite, type="fft"); // write to file
     }
-    else {
+    io.sockets.emit('fft', {'time': time, 'eeg': data}); // send socket to client
+  }
+  else {
+    if (collecting) {
       appendSample(toWrite, type="time");
     }
+    io.sockets.emit('timeseries', {'time': time, 'eeg': data}); // send socket to client
   }
-
-  io.sockets.emit('fft', {'time': time, 'eeg': data}); // send socket to client
-  io.sockets.emit('timeseries', {'time': time, 'eeg': data}); // send socket to client
-
 });
 
 
@@ -249,12 +250,24 @@ io.on('connection', function(socket){
 });
 
 
-//Sets static directory as public
-app.use(express.static(__dirname + '/public'));
+// Sets static directory as public
+app_express.use(express.static(__dirname + '/public'));
 
-app.get('/', (req, res) => {
+app_express.get('/', (req, res) => {
   res.send('index');
 });
 
 
 console.log('Listening on Port 3000!')
+
+// let win;
+// function createWindow () {
+//   // Create the browser window.
+//   win = new BrowserWindow({ width: 1000, height: 600 });
+//
+//   // and load the index.html of the app.
+//   win.loadFile('public/index.html');
+//   win.webContents.openDevTools()
+// }
+//
+// app.on('ready', createWindow);
