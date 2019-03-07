@@ -200,19 +200,27 @@ client.events.on('sample', function(data) {
   */
   let time = getTimeValue();
 
-  if (collecting) {
-    let toWrite = {'time': time, 'data': data['data']};
-    if (data['type'] == 'fft') {
+
+  let toWrite = {'time': time, 'data': data['data']};
+  if (data['type'] == 'fft') {
+    if (collecting) {
       appendSample(toWrite, type="fft"); // write to file
     }
-    else {
+    io.sockets.emit('fft', {'time': time, 'eeg': data}); // send socket to client
+  }
+  else {
+    if (collecting) {
       appendSample(toWrite, type="time");
     }
+    io.sockets.emit('timeseries', {'time': time, 'eeg': data}); // send socket to client
   }
+<<<<<<< HEAD
+=======
 
   io.sockets.emit('fft', {'time': time, 'eeg': data}); // send socket to client
   io.sockets.emit('timeseries', {'time': time, 'eeg': data}); // send socket to client
 
+>>>>>>> c39290bd1a6a05dbfeadbf971bc7ef1986bb8722
 });
 
 

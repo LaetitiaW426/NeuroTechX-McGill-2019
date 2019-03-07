@@ -40,56 +40,6 @@ $(document).ready(function() {
     }
   });
 
-
-  //Sample Data and Graphs Please Ignore this block:
-  // var data = [
-  //   { label: 'Layer 1', values: [ {x: 0, y: 0}, {x: 1, y: 1}, {x: 2, y: 2} ] },
-  //   { label: 'Layer 2', values: [ {x: 0, y: 0}, {x: 1, y: 1}, {x: 2, y: 4} ] }
-  // ];
-  // var sinLayer = {label: 'sin', values: []},
-  //   cosLayer = {label: 'cos', values: []}
-  //
-  //   for (var x = 0; x <= 2*Math.PI; x += Math.PI / 64) {
-  //     sinLayer.values.push({ x: x, y: Math.sin(x) + 1 });
-  //     cosLayer.values.push({ x: x, y: Math.cos(x) + 1 });
-  //   }
-  // var sensorChart2 = $('#sensor2').epoch({
-  //     type: 'area',
-  //     data: [sinLayer, cosLayer],
-  //     axes: ['left', 'right', 'bottom']
-  // });
-  // var sensorChart3 = $('#sensor3').epoch({
-  //     type: 'area',
-  //     data: [sinLayer, cosLayer],
-  //     axes: ['left', 'right', 'bottom']
-  // });
-  // var sensorChart4 = $('#sensor4').epoch({
-  //     type: 'area',
-  //     data: [sinLayer, cosLayer],
-  //     axes: ['left', 'right', 'bottom']
-  // });
-  // var sensorChart5 = $('#sensor5').epoch({
-  //     type: 'area',
-  //     data: [sinLayer, cosLayer],
-  //     axes: ['left', 'right', 'bottom']
-  // });
-  // var sensorChart6 = $('#sensor6').epoch({
-  //     type: 'area',
-  //     data: [sinLayer, cosLayer],
-  //     axes: ['left', 'right', 'bottom']
-  // });
-  // var sensorChart7 = $('#sensor7').epoch({
-  //     type: 'area',
-  //     data: [sinLayer, cosLayer],
-  //     axes: ['left', 'right', 'bottom']
-  // });
-  // var sensorChart8 = $('#sensor8').epoch({
-  //     type: 'area',
-  //     data: [sinLayer, cosLayer],
-  //     axes: ['left', 'right', 'bottom']
-  // });
-
-
   //Depending on range, changes the countdown text and vice versa
   var range = $('.input-range').val();
   $(".input-range").on('input', function(){
@@ -192,6 +142,10 @@ $(document).ready(function() {
     var Time = dateBuffer.getTime();
     return Time;
   }
+<<<<<<< HEAD
+  // var charts = [], lines = [];
+  // var colors = ["#6dbe3d","#c3a323","#EB9486","#787F9A","#97A7B3","#9F7E69","#d97127", "#259188"]
+=======
   var charts = [], lines = [];
   var colors = ["#6dbe3d","#c3a323","#EB9486","#787F9A","#97A7B3","#9F7E69","#d97127", "#259188"]
 
@@ -249,24 +203,72 @@ setInterval(function(){
   // setInterval(function() {
   //   line.append(new Date().getTime(), Math.random())
   // }, 100);
+>>>>>>> c39290bd1a6a05dbfeadbf971bc7ef1986bb8722
   //
-  // chart.addTimeSeries(line, {lineWidth:2, strokeStyle:'#6834c8'});
+  // for(i = 0; i < 8; i++) {
+  //   charts.push(new SmoothieChart({grid:{fillStyle:'transparent'},
+  //                                  labels:{fillStyle:'transparent'},
+  //                                  maxValue: 400,
+  //                                  minValue: -400}));
+  //   charts[i].streamTo(document.getElementById('smoothie-chart-' + (i+1)), 500);
+  //   lines.push(new TimeSeries());
+  // }
+  //
+  // let timeElapsed = new Date().getTime();
+  // socket.on('timeseries', function(timeseries) {
+  //   for(i = 0; i < 8; i++){
+  //     lines[i].append(new Date().getTime(), timeseries['eeg']['data'][i]);
+  //   }
+  //
+  //   if (new Date().getTime() -  timeElapsed > 1000){
+  //     for(i = 0; i < 8; i++){
+  //       charts[i].addTimeSeries(lines[i], {lineWidth:2,
+  //                                          strokeStyle:colors[i]});
+  //       timeElapsed = new Date().getTime();
+  //       lines[i] = new TimeSeries();
+  //     }
+  //   }
+  // });
+  //
+  // $('#stop').click(function(){
+  //   socket.emit("stop", {});
+  //   timeLeft = 0;
+  //
+  // });
 
+  const layout = {
+  title: "Spectrogram",
+  xaxis: {
+    dtick: "log_10(2)",
+    ticks: "Time [s]",
+    type: "log"
+  },
+  yaxis: {"ticks": "Frequency [kHz]"}
+  }
 
+  var z = [];
+  var timeElapsed = new Date().getTime();
+  var zTemp = [];
+  Plotly.plot('spectrogram', {data: [{z: [], type: 'heatmap'}],
+                              layout: layout});
+  socket.on('fft', function(fft) {
+    currentTime = new Date().getTime();
 
-//
-//
-// var sensorChart1 = $('#sensor1').epoch({
-//     type: 'time.area',
-//     data: lineChartData,
-//     axes: ['left', 'right', 'bottom']
-// });
-// let counter = 0;
-// let previousTime = 0;
+    // console.log(fft['time'] - initialTime);
+    for (i=0; i<125; i++)
+    {
+      zTemp.push(fft['eeg']['data'][0][i]); //0th channel
+    }
+    z.push([zTemp]);
+    zTemp = [];
 
-  $('#stop').click(function(){
-    socket.emit("stop", {});
-    timeLeft = 0;
+    // if (currentTime - timeElapsed > 1000) {
+      timeElapsed = currentTime;
+      Plotly.extendTraces('spectrogram', {
+        z: z
+      }, [0])
+      z = [];
+    // }
 
   });
   var ctx = document.getElementById('fft-chart-1').getContext('2d');
