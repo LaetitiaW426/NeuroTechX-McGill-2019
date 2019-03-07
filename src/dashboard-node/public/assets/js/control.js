@@ -5,11 +5,14 @@ $(document).ready(function() {
   let active = [1,1,1,1,1,1,1,1];
   var collecting = false;
 
+  //Play pause button
   var btn = $(".neurofeedback-toggle");
   btn.click(function() {
     btn.toggleClass("paused");
     return false;
   });
+
+
   //Used for showcasing other dashboard or training dashboard
   $('#tabs li').on('click', function() {
     var tab = $(this).data('tab');
@@ -139,8 +142,58 @@ $(document).ready(function() {
     var Time = dateBuffer.getTime();
     return Time;
   }
+<<<<<<< HEAD
   // var charts = [], lines = [];
   // var colors = ["#6dbe3d","#c3a323","#EB9486","#787F9A","#97A7B3","#9F7E69","#d97127", "#259188"]
+=======
+  var charts = [], lines = [];
+  var colors = ["#6dbe3d","#c3a323","#EB9486","#787F9A","#97A7B3","#9F7E69","#d97127", "#259188"]
+
+  for(i = 0; i < 8; i++) {
+    charts.push(new SmoothieChart({grid:{fillStyle:'transparent'},
+                                   labels:{fillStyle:'transparent'},
+                                   maxValue: 400,
+                                   minValue: -400}));
+    charts[i].streamTo(document.getElementById('smoothie-chart-' + (i+1)), 1000);
+    lines.push(new TimeSeries());
+  }
+
+  let timeElapsed = new Date().getTime();
+
+  socket.on('timeseries', function(timeseries) {
+      // console.log(channelOne.data);
+        for(i = 0; i < 8; i++){
+          lines[i].append(new Date().getTime(), timeseries['eeg']['data'][i]);
+        }
+
+      // if (counter == 10) {
+        // let newData = (new Date().getTime(), timeseries['eeg']['data'][0]);
+        // console.log(timeseries['eeg']['data'][0])
+        // console.log(counter)
+        if (new Date().getTime() -  timeElapsed > 1000){
+          for(i = 0; i < 8; i++){
+            charts[i].addTimeSeries(lines[i], {lineWidth:2,
+                                               strokeStyle:colors[i]});
+            lines[i] = new TimeSeries();
+          }
+          timeElapsed = new Date().getTime();
+        }
+
+          // counter = 0;
+      // } else {
+          // ends with 0
+          // counter++;
+      // }
+      // console.log(timeseries['eeg']['data'][0]);
+
+      // console.log(channelOne.data + " and time: " + getTimeValue());
+      // sensorChart1.push(newData);
+  });
+
+  // setInterval(function() {
+  //   line.append(new Date().getTime(), Math.random())
+  // }, 100);
+>>>>>>> c39290bd1a6a05dbfeadbf971bc7ef1986bb8722
   //
   // for(i = 0; i < 8; i++) {
   //   charts.push(new SmoothieChart({grid:{fillStyle:'transparent'},
@@ -208,5 +261,56 @@ $(document).ready(function() {
     // }
 
   });
+  var ctx = document.getElementById('fft-chart-1').getContext('2d');
+  var fftLabels = [];
+  for(i = 1; i <= 125; i++){
+    fftLabels.push(i + " Hz");
+  }
+
+  let fftDatasets = [];
+  for(i = 0; i < 8; i++){
+    fftDatasets.push({
+      label: 'Channel ' + (i+1),
+      data: [],
+      borderColor: colors[i],
+      backgroundColor: "rgba(255, 99, 132, 0)"
+    });
+  }
+  var chart = new Chart(ctx, {
+      // The type of chart we want to create
+      type: 'line',
+
+      // The data for our dataset
+      data: {
+          datasets: fftDatasets,
+          labels: fftLabels
+      },
+
+      // Configuration options go here
+      options: {
+        animation: false,
+        events: []
+      }
+  });
+
+
+  let timeElapsedFft = new Date().getTime()
+
+  socket.on('fft', function(fft) {
+      //data['data'][i] is the row of all y values from 1hz to 125hz
+      if(fft['eeg']['data'][0].length == 125 && (new Date().getTime() -  timeElapsedFft > 3000)){
+          let counter = 0;
+          chart.data.datasets.forEach((dataset) => {
+              dataset.data = fft['eeg']['data'][counter];
+              counter++;
+          });
+          chart.update();
+          timeElapsedFft = new Date().getTime();
+      }
+
+
+  });
+
+
 
 });
