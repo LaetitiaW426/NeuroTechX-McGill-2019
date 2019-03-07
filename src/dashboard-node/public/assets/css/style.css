@@ -212,9 +212,7 @@ canvas {
     margin-top: 15px;
     display: block;
     position: absolute;
-    /* text-align: center; */
     text-align:center;
-    /* left: 25%; */
     width: 100%;
 }
 
@@ -483,7 +481,6 @@ canvas {
   border-left: 70px solid rgb(90,200,250);
   display: inline-block;
   margin-left: 20px;
-  opacity: 0.7;
 }
 
 
@@ -496,7 +493,6 @@ canvas {
   border-right:70px solid rgb(90,200,250);
   display: inline-block;
   margin-right: 20px;
-  opacity: 0.7;
 }
 
 .arrow-labels{
