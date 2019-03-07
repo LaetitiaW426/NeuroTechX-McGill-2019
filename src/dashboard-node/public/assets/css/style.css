@@ -46,9 +46,10 @@ canvas {
 #tab-content > div.is-active {
   display: block;
 }
+
 .tabs.is-toggle li.is-active a {
   background-color: black;
-  border: none;
+  border: 1px solid black;
 }
 
 /* Graph View */
@@ -57,6 +58,16 @@ canvas {
   width: 100%;
   overflow: auto;
   height: 240px;
+}
+
+.production-graph{
+  display: inline-block;
+  height: 340px;
+}
+
+.production-container{
+  width: 60%;
+  float: left;
 }
 /*
  *  Scrollbar
@@ -106,6 +117,25 @@ canvas {
   margin-top: 0rem;
 }
 
+/* Overhead */
+
+.overhead{
+  line-height: 60px;
+}
+
+
+.trial{
+  display: inline-block;
+  height: 20px;
+  float: right;
+  font-size: 20px;
+  vertical-align: middle;
+}
+
+.title{
+  display: inline-block;
+  vertical-align: middle;
+}
 /* Controls */
 #controls-text {
   padding-top: 20px;
@@ -128,35 +158,38 @@ canvas {
 
 }
 .range-slider {
-  margin-top: 15px;
-  width: 100%;
-  float: left;
+  display: inline-block;
+  margin-right: 5%;
+  width: 5%;
 }
+
 .input-range {
-           width:75%;
-           height:10px;
-           background:#efefef;
-           outline:none;
-           -webkit-appearance: none;
-       }
+   width: 125px;
+   height: 10px;
+   transform: rotate(270deg);
+   background:#efefef;
+   outline:none;
+   -webkit-appearance: none;
+}
 
-  .input-range::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 20px;
-      height: 20px;
-      background: black;
+.input-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: black;
 
-  }
-  .input-range::-webkit-slider-thumb:hover,
-  .input-range:active::-webkit-slider-thumb{
-      background: #032B5A;
-  }
+}
 
-  @media (max-width: 1000px) {
-      .input-range {
-          width:65%;
-      }
-  }
+.input-range::-webkit-slider-thumb:hover,
+.input-range:active::-webkit-slider-thumb{
+  background: #032B5A;
+}
+
+/* @media (max-width: 1000px) {
+    .input-range {
+        width:65%;
+    }
+} */
 
 .with-unit {
   display: inline-block;
@@ -179,15 +212,14 @@ canvas {
     margin-top: 15px;
     display: block;
     position: absolute;
-    /* text-align: center; */
     text-align:center;
-    /* left: 25%; */
     width: 100%;
 }
 
 .active{
   background-color: rgb(90,200,250);
 }
+
 
 .active:hover{
   cursor: default;
@@ -268,14 +300,206 @@ canvas {
 
 }
 
-
-
 .loop:hover{
     background-color: rgb(200,0,0);
     opacity:.8;
     -webkit-transition-duration: 0.4s; /* Safari */
     transition-duration: 0.4s;
 }
+
+
+/* Testing Dashboard Arrows */
+
+.neurofeedback{
+  margin-top: 5px;
+  width: 100%;
+}
+
+.neurofeedback-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 15px;
+  border-radius: 5px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.neurofeedback-slider:hover {
+  opacity: 1;
+}
+
+.neurofeedback-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: rgb(90, 200, 250);
+  cursor: pointer;
+}
+
+.neurofeedback-slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+.neurofeedback-controls{
+  margin-top: 15px;
+}
+
+.neurofeedback-label{
+  font-size: 2.5vmax;
+  font-weight: bold;
+}
+
+.neuro-left{
+  float: left;
+}
+
+.neuro-right{
+  float: right;
+}
+
+.neurofeedback-toggle{
+  position: absolute;
+  left: 47.6%;
+  display: inline-block;
+  border: 0;
+  background: transparent;
+  box-sizing: border-box;
+  width: 0;
+  height: 74px;
+
+  border-color: transparent transparent transparent rgb(80,200,120);
+  transition: 100ms all ease;
+  cursor: pointer;
+
+  border-style: solid;
+  border-width: 37px 0 37px 60px;
+}
+.paused {
+    border-style: double;
+    border-width: 0px 0 0px 60px;
+}
+
+.neurofeedback-toggle:hover {
+    border-color: transparent transparent transparent #404040;
+}
+
+
+/*Bar Graph*/
+.bar-graph-container{
+  display: inline-block;
+  height: 476px;
+  width: 40%;
+}
+
+.bar-graph-spacing{
+  height: 40px;
+}
+
+.bar-graph-axis{
+  width: 20%;
+  float: left;
+}
+
+.bar-graph-markings{
+  text-align: center;
+  list-style-type: none;
+  height: 340px;
+}
+
+
+.percent-label{
+  margin-bottom: 39.2px;
+}
+
+.bottom-label{
+  margin-bottom: 0px;
+}
+
+.bar-container{
+  display: inline-block;
+  height: 340px;
+  width: 80%;
+
+}
+
+.bar{
+  display: inline-block;
+  height: 100%;
+  width: 30%;
+
+}
+
+.left-bar{
+  float: left;
+  margin-left: 10%;
+  background-color:black;
+}
+
+.right-bar{
+  float: right;
+  margin-right: 10%;
+  background-color:black;
+}
+
+.bar-labels{
+  font-weight: bold;
+  width: 80%;
+  float: right;
+  padding: 0px;
+}
+
+.bar-label-left{
+  float: left;
+  margin-left: 22%
+}
+.bar-label-right{
+  float: right;
+  margin-right: 20.5%;
+}
+
+.bar-feedback-display{
+  display: inline-block;
+  text-align: center;
+  width: 80%;
+  float: right;
+  margin-top: 10px;
+}
+
+ .arrow-right {
+  width: 0;
+  height: 0;
+  border-top: 30px solid transparent;
+  border-bottom: 30px solid transparent;
+  border-left: 70px solid rgb(90,200,250);
+  display: inline-block;
+  margin-left: 20px;
+}
+
+
+
+.arrow-left {
+  width: 0;
+  height: 0;
+  border-top: 30px solid transparent;
+  border-bottom: 30px solid transparent;
+  border-right:70px solid rgb(90,200,250);
+  display: inline-block;
+  margin-right: 20px;
+}
+
+.arrow-labels{
+  font-size: 2.5vmax;
+}
+
+
 /* .control-buttons {
   width: 25%;
   float:left;
