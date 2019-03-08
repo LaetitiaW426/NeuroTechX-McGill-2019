@@ -6,10 +6,12 @@ $(document).ready(function() {
   var active = [1,1,1,1,1,1,1,1];
 
   //ON REMOVE!
-  $(".remove").click(function(){
+  $("#commandList").on("click",".remove",function(){
+    console.log("here?");
     event.preventDefault();
     $(this).parent().remove();
   });
+
   //On button click!
   $(".selection").click(function() {
     var clicked = $(this);
