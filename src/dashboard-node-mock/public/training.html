@@ -21,15 +21,13 @@
   <div id="commandList" class="list-group col">
     <div class="list-group-item tinted" data-direction="left" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Left 10s</div>
     <div class="list-group-item tinted" data-direction="right" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Right 10s</div>
-    <div class="list-group-item tinted" data-direction="rest" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Rest 5s</div>
+    <div class="list-group-item tinted" data-direction="rest" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Rest 10s</div>
     <div class="addItem">
       <input type="text" class="timer" value="10"></input>
       <button class="selection imagery imagery-inactive direction-left">Left</button>
       <button class="selection imagery imagery-inactive direction-rest">Rest</button>
       <button class="selection imagery imagery-inactive direction-right">Right</button>
-      <input id="loop" type="checkbox" name="loop">Loop</input>
-
-      <button class="selection imagery imagery-inactive collect">Collect</buttoN>
+      <button class="selection imagery imagery-inactive collect">Collect</button>
     </div>
 
   </div>
@@ -40,6 +38,9 @@
   			</div>
 
 </div>
+
+  <h1> COLLECTING NOW: <span id="collectDirection">NONE</span></h1>
+  <h1> TIME LEFT: <span id="collectTime">N/A</span></h1>
 <script>
   var left = document.getElementById('commandList');
   var right = document.getElementById('queue');

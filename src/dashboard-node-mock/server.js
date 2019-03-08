@@ -236,39 +236,38 @@ io.on('connection', function(socket){
 
     active = clientRequest['sensors'];
 
-    for(j = 0; j < collectQueue.length; j++){
-      console.log(j);
-      if(collectQueue[j][0] == 'loop'){
-        j = -1;
-        continue;
-      }
-      else {
-        //Otherwise keep doing commands!
-        let command = collectQueue[j];
+    let totalTime = 0;
+    let times = [];
+    collectQueue.forEach(function(command){
+      totalTime+=command[1];
+      times.push(totalTime);
+    });
 
-        direction = command[0];
-        collecting = true;
-        setupCsvWriters();
+    console.log(totalTime);
 
-        let timeLeft = command[1];
 
-        let collectionTimer = setInterval(function(){
-            timeLeft--;
-            if(timeLeft <= 0){
-              collecting = false;
-              clearInterval(collectionTimer);
-              if(j == collectQueue.length-1){//INCREMENTS TEST NUMBER BEFORE LOOP OR BEFORE STOP!
-                endTest(true, true);
-              }
-              else{
-                endTest(true, false);
-              }
+    direction = collectQueue[0][0];
+    setupCsvWriters();
 
-            }
-        }, 1000);
-
-      }
-    }
+    let j = 0;
+    let time = 0;
+    let collectionTimer = setInterval(function(){
+        if (time < totalTime) {
+          if (time >= times[j]){
+            // move onto next commmand
+            endTest(true, true); //end old test
+            j += 1;
+            direction = collectQueue[j][0]; //setup new one!
+            setupCsvWriters();
+          }
+        }
+        else {
+          collecting = false;
+          endTest(true, true);
+          clearInterval(collectionTimer);
+        }
+        time++;
+    }, 1000);
 
 
   });
