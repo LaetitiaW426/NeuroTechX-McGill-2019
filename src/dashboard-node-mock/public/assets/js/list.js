@@ -5,6 +5,11 @@ $(document).ready(function() {
   //SETS ACTIVE TO ALL OF THEM FOR NOW!
   var active = [1,1,1,1,1,1,1,1];
 
+  //ON REMOVE!
+  $(".remove").click(function(){
+    event.preventDefault();
+    $(this).parent().remove();
+  });
   //On button click!
   $(".selection").click(function() {
     var clicked = $(this);
@@ -12,26 +17,26 @@ $(document).ready(function() {
 
     if(clicked.is('.direction-left')){
       //Make list item with left and duration!
-      $(".addItem").before($("<div class='list-group-item tinted' data-direction='left' data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> Left " + duration + "s</div>"));
+      $("#commandList").append($("<div class='list-group-item tinted' data-direction='left' data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> Left " + duration + "s <a href='#' class='remove'>REMOVE ME</a></div>"));
 
     }
     else if(clicked.is('.direction-right')){
-      $(".addItem").before($("<div class='list-group-item tinted' data-direction='right' data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> Right " + duration + "s</div>"));
+      $("#commandList").append($("<div class='list-group-item tinted' data-direction='right' data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> Right " + duration + "s <a href='#' class='remove'>REMOVE ME</a></div>"));
 
     }
     else if(clicked.is('.direction-rest')){
-      $(".addItem").before($("<div class='list-group-item tinted' data-direction='rest' data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> Rest " + duration + "s</div>"));
+      $("#commandList").append($("<div class='list-group-item tinted' data-direction='rest' data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> Rest " + duration + "s <a href='#' class='remove'>REMOVE ME</a></div>"));
     }
     else{
       // var loop = $("#loop").prop("checked") //returns true or false!
       //Must be collect!
       var queue = [];
-      var count = $("#queue div").length;
+      var count = $("#commandList div").length;
       console.log(count);
 
       if(count != 0){ //Non empty list!
 
-        $('#queue').children('div').each(function () {
+        $('#commandList').children('div').each(function () {
             var itemDuration = $(this).data("duration");
             var itemDirection = $(this).data("direction")
 
