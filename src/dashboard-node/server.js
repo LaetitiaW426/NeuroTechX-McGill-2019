@@ -164,6 +164,8 @@ function endTest(saved){
   fftSamples = fftSamplesHeaders;
 }
 
+const broadcasting_client = dgram.createSocket('udp4');
+
 /* Creates a UDP client to listen to the OpenBCI GUI */
 function UDPClient(port, host) {
   this.port = port;
@@ -180,10 +182,16 @@ function UDPClient(port, host) {
 UDPClient.prototype.onListening = function() {
   console.log('Listening for data...');
 };
-
 /* On message from OpenBCI UDP, emits an event called sample for further classification */
 UDPClient.prototype.onMessage = function(msg) {
-  this.events.emit('sample', JSON.parse(msg.toString()));
+  parsedMessage = JSON.parse(msg.toString()
+  this.events.emit('sample', parsedMessage));
+  // for spectrogram
+  if (parsedMessage['type'] == 'fft') {
+    broadcasting_client.send(message, 12346, 'localhost', (err) => {
+      broadcasting_client.close();
+    });
+  }
 };
 
 /* Creates UDP Client */
@@ -256,7 +264,6 @@ app_express.use(express.static(__dirname + '/public'));
 app_express.get('/', (req, res) => {
   res.send('index');
 });
-
 
 console.log('Listening on Port 3000!')
 

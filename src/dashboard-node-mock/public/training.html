@@ -15,7 +15,8 @@
   </script>
 </head>
 <body>
-
+<div class="container-fluid" style="margin-top: 20px">
+<div style="margin-bottom: 10px;"><strong>Queue</strong></div>
 <div class="left" id="commandBank">
   <div id="commandList" class="list-group col">
     <div class="list-group-item tinted" data-direction="left" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Left 10s <a href='#' class='remove'>REMOVE ME</a></div>
@@ -24,17 +25,21 @@
 
   </div>
   <div class="addItem">
-    <input type="text" class="timer" value="10"></input>
-    <div class="btn-group btn-group-toggle" data-toggle="buttons">
-      <button class="selection btn btn-primary btn-lg direction-left">Left</button>
-      <button class="selection btn btn-primary btn-lg direction-rest">Rest</button>
-      <button class="selection btn btn-primary btn-lg direction-right">Right</button>
-      <button class="selection btn btn-primary btn-lg collect">Collect</button>
+    <div class="form-group" style="margin-top: 20px">
+      <label for="durationInput"><strong>Add to Queue</strong></label>
+      <input id="durationInput" type="text" class="timer form-control" value="10" style="width: 100px"></input>
     </div>
+    <div class="btn-group btn-group-toggle" data-toggle="buttons" style="margin-bottom: 20px;">
+      <button class="selection btn btn-outline-secondary direction-left">Left</button>
+      <button class="selection btn btn-outline-secondary direction-rest">Rest</button>
+      <button class="selection btn btn-outline-secondary direction-right">Right</button>
+    </div><br>
+    <button class="selection btn btn-primary btn collect" style="margin-bottom: 20px;">Collect</button>
   </div>
 </div>
-  <h1> COLLECTING NOW: <span id="collectDirection">NONE</span></h1>
-  <h1> TIME LEFT: <span id="collectTime">N/A</span></h1>
+  <h3> Collecting now: <span id="collectDirection"> None </span></h3>
+  <h3> Time left: <span id="collectTime">N/A</span></h3>
+</div>
 <script>
   var left = document.getElementById('commandList');
 

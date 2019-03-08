@@ -17,8 +17,8 @@ bin_size = sampling_freq/NFFT  # mu frequencies are between 7 and 13 Hz
 
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP protocol
-client_socket.bind(('127.0.0.1', 12345))
-data = client_socket.recvfrom(1024)
+client_socket.bind(('127.0.0.1', 12346))
+data = client_socket.recvfrom(16384)
 
 fig = plt.figure()
 plt.yscale('log')
@@ -26,7 +26,8 @@ arr = []
 specgram = []
 
 def animate(args,client_socket, arr,specgram):
-    data = client_socket.recvfrom(1024)
+    data = client_socket.recvfrom(16384)
+    print(data)
     fig.clear()
     data = data[0].decode("utf-8")[23:]
     data = np.fromstring(data, dtype=np.float, sep=',' )
@@ -34,16 +35,16 @@ def animate(args,client_socket, arr,specgram):
     arr.append(mean)
     if len(arr) > 50:
         arr.pop(0)
-    
+
     plt.subplot(311)
     plt.ylim(0.1,15)
     plt.bar(0,mean)
-    
+
     plt.subplot(312)
     plt.ylim(0.1,15)
     plt.plot(arr)
-    
-    
+
+
     PSD = np.log10(np.abs(data[:60]) + 1)
     specgram.append(PSD)
     if len(specgram) > 50:
