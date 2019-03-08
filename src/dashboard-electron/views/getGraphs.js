@@ -1,10 +1,9 @@
+// This file is required by the index.html file and will
+// be executed in the renderer process for that window.
+// All of the Node.js APIs are available in this process.
 // const { app, BrowserWindow } = require('electron');
 const dgram = require('dgram');
 const events = require('events');
-const express = require('express');
-const app_express = express();
-const server = app_express.listen(3000);
-const io = require('socket.io').listen(server);
 const fs = require('fs');
 
 
@@ -17,6 +16,27 @@ var collecting = false;
 var duration = 0;
 var direction = "none";
 var active = [];
+var loop = false;
+
+var collectQueue = [];
+
+var titlebar = require('titlebar');
+
+var t = titlebar();
+t.appendTo(document.body);
+
+t.on('close', function(e) {
+	console.log('close');
+});
+
+// t.element exposes the root dom element
+t.element.appendChild(document.createElement('div'));
+
+// Clean up after usage
+t.destroy();
+
+
+
 
 const timeHeader = [{id: 'time', title: 'TIME'},
                     {id: 'channel1', title: 'CHANNEL 1'},
@@ -137,16 +157,19 @@ function appendSample(data, type){
 }
 
 /* Updates test number on data_settings file */
-function endTest(saved){
+function endTest(saved, changeTest){
   if(saved){
-    settings['testNumber'] += 1;
-    let settingsString = JSON.stringify(settings);
+    if(changeTest){
+      settings['testNumber'] += 1;
+      let settingsString = JSON.stringify(settings);
+      fs.writeFile('data_settings.json', settingsString, 'utf8', function(err){
+        if (err) throw err;
+        console.log('Updated Test Number!');
+        testNumber = settings['testNumber'];
+      });
+    }
 
-    fs.writeFile('data_settings.json', settingsString, 'utf8', function(err){
-      if (err) throw err;
-      console.log('Updated Test Number!');
-      testNumber = settings['testNumber'];
-    });
+
 
     // fft writers
     for (i = 0; i < 8; i++) {
@@ -164,8 +187,6 @@ function endTest(saved){
   fftSamples = fftSamplesHeaders;
 }
 
-const broadcasting_client = dgram.createSocket('udp4');
-
 /* Creates a UDP client to listen to the OpenBCI GUI */
 function UDPClient(port, host) {
   this.port = port;
@@ -182,16 +203,10 @@ function UDPClient(port, host) {
 UDPClient.prototype.onListening = function() {
   console.log('Listening for data...');
 };
+
 /* On message from OpenBCI UDP, emits an event called sample for further classification */
 UDPClient.prototype.onMessage = function(msg) {
-  parsedMessage = JSON.parse(msg.toString())
-  this.events.emit('sample', parsedMessage);
-  // for spectrogram
-  if (parsedMessage['type'] == 'fft') {
-    broadcasting_client.send(message, 12346, 'localhost', (err) => {
-      broadcasting_client.close();
-    });
-  }
+  this.events.emit('sample', JSON.parse(msg.toString()));
 };
 
 /* Creates UDP Client */
@@ -214,58 +229,78 @@ client.events.on('sample', function(data) {
     if (collecting) {
       appendSample(toWrite, type="fft"); // write to file
     }
-    io.sockets.emit('fft', {'time': time, 'eeg': data}); // send socket to client
+
+    // console.log({'time': time, 'eeg': data}); // send socket to client
   }
   else {
     if (collecting) {
       appendSample(toWrite, type="time");
     }
-    io.sockets.emit('timeseries', {'time': time, 'eeg': data}); // send socket to client
+		client.events.emit('timeseries', {'time': time, 'eeg': data})
+		// client.events.emit('timeseries', {'time': time, 'eeg': data})
+
+      // console.log({'time': time, 'eeg': data}); // send socket to client
   }
 });
+//GRAPHING!
+function getTimeValue() {
+	var dateBuffer = new Date();
+	var Time = dateBuffer.getTime();
+	return Time;
+}
+
+var charts = [], lines = [];
+var colors = ["#6dbe3d","#c3a323","#EB9486","#787F9A","#97A7B3","#9F7E69","#d97127", "#259188"]
+
+for(i = 0; i < 8; i++) {
+	charts.push(new SmoothieChart({millisPerPixel: 15, grid:{fillStyle:'transparent'},
+																 labels:{fillStyle:'transparent'},
+																 maxValue: 400,
+																 minValue: -400}));
+	charts[i].streamTo(document.getElementById('smoothie-chart-' + (i+1)), 1000);
+	lines.push(new TimeSeries());
+}
+//
+// let timeElapsed = new Date().getTime()
+
+let counter = 1;
 
 
-//Socket IO:
-io.on('connection', function(socket){
-  console.log('a user connected');
-  socket.on('collect', function(collectsocket){
-    /* From the client when a button is clicked a collect message will be sent! */
-    /* Will include, duration, direction and visible channels as an array */
-    duration = collectsocket['duration'];
-    direction = collectsocket['command'];
-    active = collectsocket['sensors'];
-    setupCsvWriters();
-    let timeLeft = duration;
-    collecting = true;
 
-    let collectionTimer = setInterval(function(){
-        timeLeft--;
-        if(timeLeft <= 0){
-          collecting = false;
-          clearInterval(collectionTimer);
-          endTest(true);
-        }
-    }, 1000);
+client.events.on('timeseries', function(timeseries) {
+		for(i = 0; i < 8; i++){
+			lines[i].append(timeseries['time'], timeseries['eeg']['data'][i]);
+		}
+	// console.log(channelOne.data);
 
-    socket.on('stop', function(){
-      collecting = false;
-      clearInterval(collectionTimer);
-      endTest(false);
-    });
 
-    console.log(collectsocket);
-  });
+	// if (counter == 10) {
+		// let newData = (new Date().getTime(), timeseries['eeg']['data'][0]);
+		// console.log(timeseries['eeg']['data'][0])
+		// console.log(counter)
+			// counter = 0;
+	// } else {
+			// ends with 0
+			// counter++;
+	// }
+	// console.log(timeseries['eeg']['data'][0]);
+
+	// console.log(channelOne.data + " and time: " + getTimeValue());
+	// sensorChart1.push(newData);
 });
 
+setInterval(function(){
+for(i = 0; i < 8; i++){
+	charts[i].addTimeSeries(lines[i], {lineWidth:3,
+																		 strokeStyle:colors[i]});
+	timeElapsed = new Date().getTime();
+	lines[i] = new TimeSeries();
+}
+}, 500);
 
-// Sets static directory as public
-app_express.use(express.static(__dirname + '/public'));
 
-app_express.get('/', (req, res) => {
-  res.send('index');
-});
 
-console.log('Listening on Port 3000!')
+
 
 // let win;
 // function createWindow () {
