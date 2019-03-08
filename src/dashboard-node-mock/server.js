@@ -248,7 +248,8 @@ io.on('connection', function(socket){
 
     direction = collectQueue[0][0];
     setupCsvWriters();
-
+    collecting = true;
+    
     let j = 0;
     let time = 0;
     let collectionTimer = setInterval(function(){
