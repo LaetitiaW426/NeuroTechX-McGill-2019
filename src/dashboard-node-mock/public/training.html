@@ -24,9 +24,10 @@
     <div class="list-group-item tinted" data-direction="rest" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Rest 10s <a href='#' class='remove'>REMOVE ME</a></div>
 
   </div>
-  <div class="addItem">
-    <div class="form-group" style="margin-top: 20px">
-      <label for="durationInput"><strong>Add to Queue</strong></label>
+  <div class="addItem" style="margin-top: 20px">
+    <label for="durationInput"><strong>Add to Queue</strong></label>
+    <div class="form-group row">
+      <label for="durationInput" class="col-sm-6 col-form-label">Duration (sec)</label>
       <input id="durationInput" type="text" class="timer form-control" value="10" style="width: 100px"></input>
     </div>
     <div class="btn-group btn-group-toggle" data-toggle="buttons" style="margin-bottom: 20px;">
@@ -34,15 +35,16 @@
       <button class="selection btn btn-outline-secondary direction-rest">Rest</button>
       <button class="selection btn btn-outline-secondary direction-right">Right</button>
     </div><br>
-    <button class="selection btn btn-primary btn collect" style="margin-bottom: 20px;">Collect</button>
   </div>
+  <button class="selection btn btn-primary btn collect" style="margin-bottom: 20px;">Collect</button>
+
 </div>
   <h3> Collecting now: <span id="collectDirection"> None </span></h3>
   <h3> Time left: <span id="collectTime">N/A</span></h3>
 </div>
 <script>
   var left = document.getElementById('commandList');
-  
+
   new Sortable(left, {
     group: {
         name: 'shared',
