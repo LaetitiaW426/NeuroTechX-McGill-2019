@@ -65,6 +65,13 @@ $(document).ready(function() {
     }
   });
 
+  //Production dashboard start and stop button
+  var productionBtn = $(".production-start-button");
+  productionBtn.click(function() {
+    productionBtn.text() == "Stop" ? productionBtn.text("Start") : productionBtn.text("Stop");
+    productionBtn.toggleClass("production-stop");
+    return false;
+  });
 
 
   /* IMPORTANT BLOCK FOR DATA COLLECTION! */
@@ -316,4 +323,6 @@ setInterval(function(){
   //         z = [];
   //     }
   // });
+
+
 });

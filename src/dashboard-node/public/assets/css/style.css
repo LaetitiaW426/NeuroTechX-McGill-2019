@@ -432,7 +432,6 @@ canvas {
 
 .bar{
   display: inline-block;
-  height: 100%;
   width: 30%;
 
 }
@@ -440,11 +439,13 @@ canvas {
 .left-bar{
   float: left;
   margin-left: 10%;
+  height: 100%;
   background-color:black;
 }
 
 .right-bar{
   float: right;
+  height: 100%;
   margin-right: 10%;
   background-color:black;
 }
@@ -468,9 +469,44 @@ canvas {
 .bar-feedback-display{
   display: inline-block;
   text-align: center;
-  width: 80%;
+  width: 100%;
   float: right;
   margin-top: 10px;
+}
+
+.production-button-container{
+  width: 20%;
+  float: left;
+  text-align: center;
+  display: inline-block;
+}
+
+.production-start-button{
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: 10%;
+  border-style: solid;
+  border-width: 2px;
+  border-color: black;
+
+  background-color: rgb(100,220,140);
+  width: 50%;
+  height: 50px;
+  text-align: center;
+  font-size: 1.0vmax;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.production-stop{
+  background-color: red;
+  content: "Stop";
+}
+
+.arrow-feedback{
+  width: 80%;
+  float: right;
+  display: inline-block;
 }
 
  .arrow-right {
