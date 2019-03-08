@@ -1,0 +1,67 @@
+
+ul {
+  padding: 0;
+  font-size: 1rem;
+  font-weight: 100;
+  list-style-type: none;
+}
+
+li, .list-title {
+  padding: 0 1rem;
+  cursor: pointer;
+  color: black;
+
+  background-color: black;
+
+  border-width: 3px;
+  width: 14rem;
+  color: white;
+}
+
+.list-title {
+  margin-top: 1rem;
+}
+
+.sidebar {
+  padding: 1rem;
+  background-color: #96031A;
+  font-family: 'Lato', sans-serif;
+  line-height: 1.8rem;
+}
+
+.sidebar-head {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: white;
+  text-align: center;
+}
+
+.profile-name {
+  font-size: 0.9rem;
+  font-weight: 100;
+}
+
+
+
+li:hover {
+  background-color: rgba(62, 49, 60, 1);
+  border-radius: 0.2rem;
+  width: 14rem;
+  color: white;
+}
+
+li:active {
+  background-color: rgba(75, 150, 137, 1);
+  border-radius: 0.2rem;
+  width: 14rem;
+}
+
+.pane-sm {
+  min-width: 250px;
+}
+
+img {
+  display: block;
+margin-left: auto;
+margin-right: auto;
+}

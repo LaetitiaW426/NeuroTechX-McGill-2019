@@ -1,0 +1,28 @@
+html
+  head
+    title Dashboard
+    link(rel="stylesheet" href="./css/photon.min.css")
+    link(rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css")
+    link(rel="stylesheet" href="./css/styles.css")
+    script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js")
+    script(type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/smoothie/1.34.0/smoothie.min.js")
+
+  body
+    div(class="window")
+      div(class="window-content")
+        div(class="pane-group")
+          div(class="pane-sm sidebar")
+            img(src="./images/neurotechmcgill.png" width="50%")
+            h1.list-title.sidebar-head McGill NeuroTech
+            ul
+              li Graphs
+              li Training
+              li Testing
+          div(class="pane")
+            h1 Main Content
+            - for (var x = 1; x < 9; x++)
+              canvas(width="800" height="100" id='smoothie-chart-' + x)
+                
+    h1 Training Dashboard
+    script.
+      require('./getGraphs.js');

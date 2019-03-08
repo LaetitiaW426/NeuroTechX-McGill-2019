@@ -1,0 +1,21 @@
+{
+  "name": "Dashboard-Electron",
+  "version": "1.0.0",
+  "description": "Dashboard for OpenGUI",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "",
+  "author": "NeuroTech-McGill",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "electron": "^4.0.7"
+  },
+  "dependencies": {
+    "csv-writer": "^1.2.0",
+    "electron-pug": "^2.0.0",
+    "menubar": "^5.2.3",
+    "titlebar": "^1.4.0"
+  }
+}
