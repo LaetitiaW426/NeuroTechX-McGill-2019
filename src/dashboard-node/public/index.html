@@ -445,7 +445,6 @@
             <div class = "neurofeedback-controls">
               <button class = "neurofeedback-toggle"> </button>
               <span class = "neurofeedback-label neuro-left"> Left </span>
-
               <span class = "neurofeedback-label neuro-right"> Right </span>
             </div>
           </div>
@@ -641,9 +640,9 @@
               </ul>
             </div>
             <div class = "bar-container">
-              <div class = "bar left-bar">
+              <div class = "bar left-bar" id = "left-bar-control">
               </div>
-              <div class = "bar right-bar">
+              <div class = "bar right-bar" id = "right-bar-control">
               </div>
             </div>
             <div class = "bar-labels">
@@ -652,10 +651,13 @@
             </div>
         </div>
         <div class = "bar-feedback-display">
-<!--           <span class = "arrow-labels"> Left </span> -->
-              <div class = "arrow-left"> </div>
-              <div class = "arrow-right"> </div>
-<!--          <span class = "arrow-labels"> Right </span> -->
+            <div class = "production-button-container">
+              <button class = "production-start-button"> Start </button>
+            </div>
+            <div class = "arrow-feedback">
+              <div class = "arrow-left" id = "arrow-left-control"> </div>
+              <div class = "arrow-right" id = "arrow-right-control"> </div>
+            </div>
         </div>
         </div>
       </div>

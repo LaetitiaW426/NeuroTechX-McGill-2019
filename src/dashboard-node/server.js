@@ -164,7 +164,7 @@ function endTest(saved){
   fftSamples = fftSamplesHeaders;
 }
 
-const broadcasting_client = dgram.createSocket('udp4');
+// const broadcasting_client = dgram.createSocket('udp4');
 
 /* Creates a UDP client to listen to the OpenBCI GUI */
 function UDPClient(port, host) {
@@ -187,11 +187,12 @@ UDPClient.prototype.onMessage = function(msg) {
   parsedMessage = JSON.parse(msg.toString())
   this.events.emit('sample', parsedMessage);
   // for spectrogram
-  if (parsedMessage['type'] == 'fft') {
-    broadcasting_client.send(message, 12346, 'localhost', (err) => {
-      broadcasting_client.close();
-    });
-  }
+  // const byteMessage = Buffer.from(msg.toString());
+  // if (parsedMessage['type'] == 'fft') {
+  //   broadcasting_client.send(msg, 12346, 'localhost', (err) => {
+  //     broadcasting_client.close();
+  //   });
+  // }
 };
 
 /* Creates UDP Client */
