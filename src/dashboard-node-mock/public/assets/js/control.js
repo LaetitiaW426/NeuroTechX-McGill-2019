@@ -147,9 +147,12 @@ $(document).ready(function() {
   var colors = ["#6dbe3d","#c3a323","#EB9486","#787F9A","#97A7B3","#9F7E69","#d97127", "#259188"]
 
   for(i = 0; i < 8; i++) {
-    charts.push(new SmoothieChart({grid:{fillStyle:'transparent'},
-                                   labels:{fillStyle:'transparent'},
+    charts.push(new SmoothieChart({millisPerPixel:6.25,grid:{fillStyle:'transparent',strokeStyle:'transparent',millisPerLine:1000,verticalSections:0},
+                                   labels:{fillStyle:'#000000'},
+                                   // limitFPS:60,
+                                   tooltip:true,
                                    maxValue: 400,
+                                   timestampFormatter:SmoothieChart.timeFormatter,
                                    minValue: -400}));
     charts[i].streamTo(document.getElementById('smoothie-chart-' + (i+1)), 1000);
     lines.push(new TimeSeries());
@@ -167,7 +170,9 @@ socket.on('timeseries', function(timeseries) {
     }
     else {
       for(i = 0; i < 8; i++){
-        lines[i].append(timeseries['time'], timeseries['eeg']['data'][i]);
+        if(active[i] == 1){
+          lines[i].append(timeseries['time'], timeseries['eeg']['data'][i]);
+        }
       }
     }
     // console.log(channelOne.data);
@@ -190,10 +195,15 @@ socket.on('timeseries', function(timeseries) {
 
 setInterval(function(){
   for(i = 0; i < 8; i++){
-    charts[i].addTimeSeries(lines[i], {lineWidth:2,
-                                       strokeStyle:colors[i]});
-    timeElapsed = new Date().getTime();
-    lines[i] = new TimeSeries();
+    if(active[i] == 1){
+      charts[i].addTimeSeries(lines[i], {lineWidth:2,
+                                         strokeStyle:colors[i]});
+      timeElapsed = new Date().getTime();
+      lines[i] = new TimeSeries();
+    }
+    else{
+      lines[i] = new TimeSeries();
+    }
   }
 }, 1000);
 
