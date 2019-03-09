@@ -296,7 +296,7 @@ for(i = 0; i < 8; i++){
 	timeElapsed = new Date().getTime();
 	lines[i] = new TimeSeries();
 }
-}, 500);
+}, 1000);
 
 
 
