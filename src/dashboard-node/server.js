@@ -18,6 +18,36 @@ var duration = 0;
 var direction = "none";
 var active = [];
 
+
+/*EXPRESS*/
+
+
+// Sets static directory as public
+app_express.use(express.static(__dirname + '/public'));
+
+app_express.get('/', (req, res) => {
+  res.send('index');
+});
+
+console.log('Listening on Port 3000!')
+
+
+/*TIME*/
+
+
+/* Gets the current time */
+function getTimeValue() {
+  var dateBuffer = new Date();
+  var Time = dateBuffer.getTime();
+  //Milliseconds since 1 January 1970
+  return Time;
+}
+
+
+/*SETTING UP CSV WRITERS*/
+
+/*Time csv writer*/
+/* Formatting header (top row) of time CSV */
 const timeHeader = [{id: 'time', title: 'TIME'},
                     {id: 'channel1', title: 'CHANNEL 1'},
                     {id: 'channel2', title: 'CHANNEL 2'},
@@ -28,6 +58,8 @@ const timeHeader = [{id: 'time', title: 'TIME'},
                     {id: 'channel7', title: 'CHANNEL 7'},
                     {id: 'channel8', title: 'CHANNEL 8'}]
 
+/* Setting up array for actually storing the time data where each index has
+the header data (time, channels 1-8) */
 const timeHeaderToWrite = {time: 'Time',
                   channel1: 'Channel 1',
                   channel2: 'Channel 2',
@@ -38,36 +70,35 @@ const timeHeaderToWrite = {time: 'Time',
                   channel7: 'Channel 7',
                   channel8: 'Channel 8'
                 };
-var timeSamples = [timeHeaderToWrite];
 
+var timeSamples = [timeHeaderToWrite];
+//Global variable will be used to store time data
+
+
+/*FFT csv writer*/
+/* fft CSV will have header with the time and 1 - 125Hz */
 const fftHeader = [{id: 'time', title: 'TIME'}];
 for (i=0; i<125; i++) {
   fftHeader.push({id: 'f' + (i+1), title: (i+1) + 'Hz'})
 }
 
+/* Same as above */
 const fftHeaderToWrite = {time: 'Time'};
 for (i=0; i<125; i++) {
   fftHeaderToWrite['f' + (i+1)] = (i+1) + 'Hz';
 }
 
-/* initialize fftSamples to a list of headers for each channel */
+/* Initialize fftSamples to a list of headers for each channel. At index 0 are
+channel one's headers which are time, and 1-125Hz, etc. */
 const fftSamplesHeaders = [];
 for (i=0; i<8; i++) {
   fftSamplesHeaders.push([fftHeaderToWrite]);
 }
+
 var fftSamples = fftSamplesHeaders;
+//Global variable. Will be used to store fft data.
 
-/* These are manual settings that we can use to keep track of testNumber as an example */
-var settings = JSON.parse(fs.readFileSync(__dirname + '/data_settings.json', 'utf8'));
-console.log("Currently running on these settings: \n" + settings);
-let testNumber = settings['testNumber'];
 
-/* Gets the current time */
-function getTimeValue() {
-  var dateBuffer = new Date();
-  var Time = dateBuffer.getTime();
-  return Time;
-}
 
 /* Sets the csvwriters to the correct paths! */
 function setupCsvWriters(){
@@ -75,49 +106,145 @@ function setupCsvWriters(){
     var day = date.getFullYear() + '-' + date.getMonth() + '-' +
                    date.getDate() + '-' + date.getHours() + '-' +
                    date.getMinutes() + '-' + date.getSeconds();
+   //Formatting date as YYYY-MM-DD-hr-min-sec
 
     csvTimeWriter = createCSVWriter({
           path: __dirname + '/data/time-test-' + testNumber + '-' + direction + '-'
                           + day + '.csv',
+          //File name of CSV for time test
           header: timeHeader,
           append: true
     });
     csvFFTWriters = [];
+    //For fft, makes array of CSV writers for each channel
     for (i=0; i<8; i++) {
       csvFFTWriters.push(createCSVWriter({
         path: __dirname + '/data/fft-' + (i+1) + '-test-' + testNumber + '-'
-                        + direction + '-' + day + '.csv',
+                        + direction + '-' + day + '.csv',//File name of CSVs for fft
         header: fftHeader,
         append: true
       }));
     }
 }
 
-function appendSample(data, type){
-  /*
-  Write samples to CSV file when data is collecting
-  */
 
+
+/*NAMING OF SAMPLES*/
+
+
+/* These are manual settings that we can use to keep track of testNumber as an example */
+var settings = JSON.parse(fs.readFileSync(__dirname + '/data_settings.json', 'utf8'));
+console.log("Currently running on these settings: \n" + settings);
+let testNumber = settings['testNumber'];//Could read in data from dashboard
+
+
+
+
+
+/*SETTING UP NETWORKING*/
+
+
+/*UDP Client*/
+/* Function that creates a UDP client to listen to the OpenBCI GUI */
+function UDPClient(port, host) {
+  this.port = port;
+  this.host = host;
+  this.data = [];
+  this.events = new events.EventEmitter();
+  this.connection = dgram.createSocket('udp4');
+  this.connection.on('listening', this.onListening.bind(this));
+  this.connection.on('message', this.onMessage.bind(this));
+  this.connection.bind(this.port, this.host);
+};
+
+/* Function that logs if UDP client is listening */
+UDPClient.prototype.onListening = function() {
+  console.log('Listening for data...');
+};
+
+/* Function that, upon message from OpenBCI UDP, emits an event called 'sample'
+for further classification.*/
+UDPClient.prototype.onMessage = function(msg) {
+  parsedMessage = JSON.parse(msg.toString())
+  this.events.emit('sample', parsedMessage);
+  // for spectrogram
+  // const byteMessage = Buffer.from(msg.toString());
+  // if (parsedMessage['type'] == 'fft') {
+  //   broadcasting_client.send(msg, 12346, 'localhost', (err) => {
+  //     broadcasting_client.close();
+  //   });
+  // }
+};
+
+
+/* Here we actually create the UDP Client listening to 127.0.0.1:12345
+OpenBCI GUI must be set to communicate on this port for fft and time data */
+var client = new UDPClient(12345, "127.0.0.1");
+
+
+
+/* RECORDING DATA */
+
+
+/*
+When message from OpenBCI is received, onMessage function emits event 'sample'
+that this function recognizes. onMessage passes the parsed message (data)
+which we append to a CSV. We then ping the client.
+Data Format: {
+                'time': time,
+                'eeg': {'data': [0.5,3,-5,40,5,32,8,1]}
+                    data[index] is the eeg value at sensor-index
+              }
+*/
+client.events.on('sample', function(data) {
+  let time = getTimeValue();//Milliseconds since January 1 1970. Adjust?
+  let toWrite = {'time': time, 'data': data['data']};
+  if (data['type'] == 'fft') {
+    if (collecting) {
+      appendSample(toWrite, type="fft"); // Write to file
+    }
+    io.sockets.emit('fft', {'time': time, 'eeg': data});
+    // Regardless of if we're collecting, we're always sending data to client
+    // This data is used to make the graphs
+  }
+  else {
+    if (collecting) {
+      appendSample(toWrite, type="time");
+    }
+    io.sockets.emit('timeseries', {'time': time, 'eeg': data});
+    //This data is used to make the graphs
+  }
+});
+
+
+/* When we're collecting data (collecing = True), this function is run for every
+sample. It writes samples to a CSV file, recording the collected data and the time.
+
+Takes in 'data' object which has 'time' and 'data' attributes, and type (fft or time) */
+function appendSample(data, type){
   channelData = [];
   for (i = 0; i < 8; i++) {
-    if (active[i] == 1) {
+    if (active[i] == 1) {//Only get data for active channels
         channelData[i] = data['data'][i];
     }
     else {
       channelData[i] = null;
     }
   }
-
-  if (type =='fft') {
+  //When fft data is passe
+  if (type =='fft') {d
     let fftSamplesToPush = [];
+    //For each channel gets values for 1-125Hz
     for (i=0; i<8; i++) {
       fftSamplesToPush.push({time: data['time']});
       for (j=0; j<125; j++) {
          fftSamplesToPush[i]['f' + (j+1)] = channelData[i][j];
+         //channelData is 2D for fft
       }
     }
     for (i=0; i<8; i++) {
       fftSamples[i].push(fftSamplesToPush[i]);
+      //Pushing 8 125 value arrays to global fftSamples variable
     }
   }
 
@@ -132,11 +259,19 @@ function appendSample(data, type){
                     channel7: channelData[6],
                     channel8: channelData[7]
                   }
+    //channelData is 1D for time
     timeSamples.push(timeSampleToPush);
+    //Updating global timeSamples variable
   }
 }
 
-/* Updates test number on data_settings file */
+
+/*END OF TRIAL*/
+
+
+/* This function runs when a trial is finishing.If data is meant to be saved,
+test number increments by one and testNumber is reset. timeSamples and
+fftSamples are reset as well, to just the headers.Takes boolean argument. */
 function endTest(saved){
   if(saved){
     settings['testNumber'] += 1;
@@ -148,82 +283,30 @@ function endTest(saved){
       testNumber = settings['testNumber'];
     });
 
-    // fft writers
+    // fft data is written to CSV
     for (i = 0; i < 8; i++) {
       csvFFTWriters[i].writeRecords(fftSamples[i]).then(() => {
         console.log('Added some fft samples');
       });
     }
 
-    // time writer
+    // time data is written to CSV
     csvTimeWriter.writeRecords(timeSamples).then(() => {
       console.log('Added some time samples');
     });
   }
+
+  //Both global variables are reset
   timeSamples = [timeHeaderToWrite];
   fftSamples = fftSamplesHeaders;
 }
 
 // const broadcasting_client = dgram.createSocket('udp4');
 
-/* Creates a UDP client to listen to the OpenBCI GUI */
-function UDPClient(port, host) {
-  this.port = port;
-  this.host = host;
-  this.data = [];
-  this.events = new events.EventEmitter();
-  this.connection = dgram.createSocket('udp4');
-  this.connection.on('listening', this.onListening.bind(this));
-  this.connection.on('message', this.onMessage.bind(this));
-  this.connection.bind(this.port, this.host);
-};
-
-/* Prints listening */
-UDPClient.prototype.onListening = function() {
-  console.log('Listening for data...');
-};
-/* On message from OpenBCI UDP, emits an event called sample for further classification */
-UDPClient.prototype.onMessage = function(msg) {
-  parsedMessage = JSON.parse(msg.toString())
-  this.events.emit('sample', parsedMessage);
-  // for spectrogram
-  // const byteMessage = Buffer.from(msg.toString());
-  // if (parsedMessage['type'] == 'fft') {
-  //   broadcasting_client.send(msg, 12346, 'localhost', (err) => {
-  //     broadcasting_client.close();
-  //   });
-  // }
-};
-
-/* Creates UDP Client */
-var client = new UDPClient(12345, "127.0.0.1");
-
-client.events.on('sample', function(data) {
-  /*
-  When sample is received, appends to CSV and pings client.
-  Data Format: {
-                  'time': time,
-                  'eeg': {'data': [0.5,3,-5,40,5,32,8,1]}
-                      data[index] is the eeg value at sensor-index
-                }
-  */
-  let time = getTimeValue();
 
 
-  let toWrite = {'time': time, 'data': data['data']};
-  if (data['type'] == 'fft') {
-    if (collecting) {
-      appendSample(toWrite, type="fft"); // write to file
-    }
-    io.sockets.emit('fft', {'time': time, 'eeg': data}); // send socket to client
-  }
-  else {
-    if (collecting) {
-      appendSample(toWrite, type="time");
-    }
-    io.sockets.emit('timeseries', {'time': time, 'eeg': data}); // send socket to client
-  }
-});
+
+/*USER CONTROL OF COLLECTING BOOLEAN WITH SOCKET IO*/
 
 
 //Socket IO:
@@ -239,6 +322,8 @@ io.on('connection', function(socket){
     let timeLeft = duration;
     collecting = true;
 
+    /* Timer that lasts for 'duration', and sets collecting to False at end
+    and runs endTest function.*/
     let collectionTimer = setInterval(function(){
         timeLeft--;
         if(timeLeft <= 0){
@@ -248,6 +333,8 @@ io.on('connection', function(socket){
         }
     }, 1000);
 
+    /*If test is interrupted by a stop command, then this sets collecting to
+    False and runs endTest so that file is NOT saved */
     socket.on('stop', function(){
       collecting = false;
       clearInterval(collectionTimer);
@@ -259,14 +346,7 @@ io.on('connection', function(socket){
 });
 
 
-// Sets static directory as public
-app_express.use(express.static(__dirname + '/public'));
 
-app_express.get('/', (req, res) => {
-  res.send('index');
-});
-
-console.log('Listening on Port 3000!')
 
 // let win;
 // function createWindow () {
