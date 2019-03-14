@@ -1,3 +1,112 @@
+.section{
+  padding: 0px;
+  height: 500px;
+}
+
+
+.title{
+	display: inline-block;
+
+}
+
+#dashboard-title-training{
+	margin-left: 10px;
+}
+
+#divide{
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+#dashboard-title-training{
+	font-size: 3vmax;
+	font-weight: bolder;
+
+}
+/* Navbar */
+.navbar .navbar-brand {
+  text-align: center;
+  display: block;
+  width: 100%;
+  height: 50px;
+  padding: 0px;
+}
+
+.logo-image{
+  width: 80px;
+  height: auto;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 3;
+}
+
+.navbar .navbar-brand > .navbar-item,
+.navbar .navbar-brand .navbar-link {
+  display: inline-block;
+}
+
+a.navbar-item{
+  font-size: 30;
+}
+
+canvas {
+  margin: auto;
+  display: block;
+}
+
+#tab-content > div {
+  display: none;
+}
+
+#tab-content > div.is-active {
+  display: block;
+}
+
+.tabs.is-toggle li.is-active a {
+  background-color: black;
+  border: 1px solid black;
+}
+
+
+/* Queue Styling */
+
+.container-queue{
+    width: 40%;
+    display: inline-block;
+    float: left;
+	padding-left: 10px;
+	border-color: black;
+	border-style: transparent solid;
+	border-radius: 10px;
+
+
+}
+
+.header{
+	font-size: 3vmax;
+	margin-bottom: 15px;
+}
+
+.addItem{
+    margin-top: 20px;
+}
+
+#durationInput{
+    width: 100px;
+	border-radius: 10px;
+}
+
+.btn-group{
+    margin-bottom: 20px;
+	text-align: center;
+}
+
+
+.selection{
+    margin-bottom: 20px;
+}
+
 .list-group-item:hover {
 	z-index: 0;
 }
@@ -11,11 +120,6 @@
   margin-bottom: 0;
 }
 
-.left {
-  display: inline-block;
-  width: 40%;
-  height: auto;
-}
 
 .right {
   display: inline-block;
@@ -33,4 +137,44 @@
 #queue {
   outline: 5px dotted green;
   min-height: 300px;
+}
+
+
+/*Display Styling*/
+
+.container-display{
+	padding: 0px 10px;
+	display: inline-block;
+	text-align: center;
+    float: right;
+	width: 60%;
+	height: 400px;
+}
+
+.command-display{
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+	width: 100%;
+	height: 90%;
+	background-color: rgb(60,240,120);
+	border-style: solid;
+	border-color: black;
+	border-radius: 10px;
+	opacity: .5;
+}
+
+.current-command{
+	display: inline-block;
+	font-size: 5vmax;
+	font-weight: bolder;
+}
+
+.timer-display-text{
+	font-size: 3vmax;
+	font-weight: bold;
+}
+
+.command-display-flash{
+	opacity: .9;
 }

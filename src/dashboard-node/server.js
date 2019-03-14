@@ -47,7 +47,7 @@ function getTimeValue() {
 /*SETTING UP CSV WRITERS*/
 
 /*Time csv writer*/
-/* Formatting header (top row) of time CSV */
+/* Formatting header of time CSV */
 const timeHeader = [{id: 'time', title: 'TIME'},
                     {id: 'channel1', title: 'CHANNEL 1'},
                     {id: 'channel2', title: 'CHANNEL 2'},
