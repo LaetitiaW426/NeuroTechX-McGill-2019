@@ -64,7 +64,9 @@ canvas {
   border: 1px solid black;
 }
 
-
+.overhead{
+	height: 12%
+}
 /* Queue Styling */
 
 .container-queue{
@@ -147,7 +149,7 @@ canvas {
 	text-align: center;
     float: right;
 	width: 60%;
-	height: 400px;
+	height: 85%;
 }
 
 .command-display{
@@ -155,7 +157,7 @@ canvas {
 	flex-direction: column;
 	justify-content: space-evenly;
 	width: 100%;
-	height: 90%;
+	height: 100%;
 	background-color: rgb(60,240,120);
 	border-style: solid;
 	border-color: black;
