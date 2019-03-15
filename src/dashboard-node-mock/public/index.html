@@ -4,26 +4,26 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <!--bulma.min is for the navigation bar-->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+  <!-- bootstrap framework used for styling certain elements -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+  <!-- Fonts! -->
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
 
   <script src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+  <!-- jquery -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
-  <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.0/d3.min.js' charset='utf-8'></script>
 
-  <script src="assets/js/data.js"></script>
+  <!-- For rearranging the queue -->
   <script src="assets/js/sortable.js"></script>
+  <!-- Queue control -->
   <script src="assets/js/list.js"></script>
-  <script src="assets/js/socket.io.js"></script>
   <script src="assets/js/control.js"></script>
+  <script src="assets/js/socket.io.js"></script>
 
   <link rel="stylesheet" href="assets/css/list.css">
   <link rel="stylesheet" href="assets/css/training-style.css">
-
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/smoothie/1.34.0/smoothie.min.js"></script>
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
   <script>
     var socket = io();
@@ -31,7 +31,14 @@
 </head>
 <body>
 
-<!-- QUEUE -->
+<!-- Navbar -->
+<!--Classes:
+"navbar": from bulma.min.css to format navigation tabs
+"is-active": class assigned to active tab upon click
+
+
+
+-->
 <nav class="navbar" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
     <div class="navbar-item">
@@ -46,7 +53,7 @@
           <li data-tab = "2">
             <a>
               <span class="icon is-small"><i class="fas fa-code-branch"></i></span>
-              <span>Chart</span>
+              <span>Production</span>
             </a>
         </ul>
       </div>
@@ -55,231 +62,83 @@
   </div>
 </nav>
 <section class = "section">
+    <!-- Training Dashboard -->
+    <!--
+    Classes:
+    "is-active": toggled upon tab switch to the active tab
+    "dashboard-title": used to format the titles for each dashboard
+    "container-queue": houses queue and controls
+        "list-group col": for queue list
+        "selection": class for all buttons
+            "btn-outline-secondary": formats Left/Rest/Right buttons
+            "btn-primary": formats collect button
+    "container-display": div for the current command display and timer
+        "collectTime": gets time updates
+    -->
     <div id="tab-content">
+        <!-- "is-active" toggles upon tab switch -->
         <div class="is-active" data-content='1'>
-            <!-- <div class = 'container'> -->
                 <div class="overhead">
-                    <span id="dashboard-title-training"> Training </span>
+                    <span class="dashboard-title"> Training </span>
                     <!-- <form class="trial">
                       Trial Name:
                       <input type="text" name="trial-input"><br>
                     </form> -->
                     <!-- <img class="logo-image" src="assets/img/mcgill-neurotech.png" alt="McGill Neurotech"> -->
-
                 </div>
                 <hr id = "divide">
+                <!-- "container-queue" is for left half of dashboard that holds queue information -->
                 <div class="container-queue">
+                    <!--"header" class name is used for Queue and Display headers -->
                     <div class="header"> Queue </div>
-                    <div class="left" id="commandBank">
-                        <div id="commandList" class="list-group col">
-                            <div class="list-group-item tinted" data-direction="Left" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Left 10s <a href='#' class='remove'>REMOVE ME</a></div>
-                            <div class="list-group-item tinted" data-direction="Right" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Right 10s <a href='#' class='remove'>REMOVE ME</a></div>
-                            <div class="list-group-item tinted" data-direction="Rest" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Rest 10s <a href='#' class='remove'>REMOVE ME</a></div>
-                        </div>
+                        <!-- commandBank is contains the queue of commands -->
+                        <div class="left" id="commandBank">
+                            <!-- "list-group col" is a flexbox that stores "list-group-items" in a list -->
+                            <div id="commandList" class="list-group col">
+                                <div class="list-group-item tinted" data-direction="Left" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Left 10s <a href='#' class='remove'>REMOVE ME</a></div>
+                                <div class="list-group-item tinted" data-direction="Right" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Right 10s <a href='#' class='remove'>REMOVE ME</a></div>
+                                <div class="list-group-item tinted" data-direction="Rest" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Rest 10s <a href='#' class='remove'>REMOVE ME</a></div>
+                            </div>
+                            <!-- addItem contains the controls to add elements to the queue and start collecting -->
+                            <div class="addItem">
+                                <!-- "Add to queue" and "Duration (sec)" are both labels for the time input -->
+                                <label for="durationInput"><strong>Add to Queue</strong></label>
+                                <div class="form-group row">
+                                    <!-- uses bootstrap class col-sm-6 to format label -->
+                                    <label for="durationInput" class="col-sm-6 col-form-label">Duration (sec)</label>
+                                    <input id="durationInput" type="text" class="timer form-control" value="10"></input>
+                                </div>
+                                <!-- These buttons are used to add elements to the queue
+                                They are formatted using bootstrap classes -->
+                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                    <button class="selection btn btn-outline-secondary direction-left">Left</button>
+                                    <button class="selection btn btn-outline-secondary direction-rest">Rest</button>
+                                    <button class="selection btn btn-outline-secondary direction-right">Right</button>
+                                </div><br>
+                                <!-- This is the "collect" button. Also bootstrap formatted -->
+                                <button class="selection btn btn-primary btn collect" id='btn-collect'>Collect</button>
+                            </div>
 
-                    <div class="addItem">
-                        <label for="durationInput"><strong>Add to Queue</strong></label>
-                        <div class="form-group row">
-                            <label for="durationInput" class="col-sm-6 col-form-label">Duration (sec)</label>
-                            <input id="durationInput" type="text" class="timer form-control" value="10"></input>
                         </div>
-                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                            <button class="selection btn btn-outline-secondary direction-left">Left</button>
-                            <button class="selection btn btn-outline-secondary direction-rest">Rest</button>
-                            <button class="selection btn btn-outline-secondary direction-right">Right</button>
-                        </div><br>
-                        <button class="selection btn btn-primary btn collect">Collect</button>
-                        <!-- <h3> Time left: <span id="collectTime">N/A</span></h3> -->
-                    </div>
-
-                    </div>
                   <!-- <h3> Collecting now: <span id="collectDirection"> None </span></h3> -->
                 </div>
 
-                <!-- DISPLAY -->
+                <!-- Display of commands and timer -->
                 <div class = "container-display">
                     <div class = "header"> Current Command </div>
                     <div class="command-display" id="command-display">
                         <div class = "current-command" id="current-command"> -- </div>
                         <div class = "timer-display">
                             <span class = "timer-display-text"> Time: </span>
+                            <!-- collecTime class actually is what gets updated -->
                             <span class = "timer-display-text collectTime" id="collectTime">N/A</span>
                         </div>
                     </div>
                 </div>
             </div>
-            <div data-content="2">
-              <div class="container">
-                <div class="overhead">
-                    <h1 class="chart-title">
-                      EEG
-                    </h1>
-                </div>
-                    <div class="graphview">
-                      <div class="media" id="media-sensor1">
-                        <figure class="media-left">
-                          <strong>Sensor 1:</strong>
-                        </figure>
-                        <div class="media-content">
-                          <div class="content">
-                          <canvas id="smoothie-chart-1" width="800" height="100">
-                            <div id="sensor1" class="epoch category10" style="height: 100px;"></div>
-                          </div>
-                          <canvas id="fft-chart-1"></canvas>
-                        </div>
-                      </div>
-
-                      <div class="media" id="media-sensor2">
-                        <figure class="media-left">
-                          <strong>
-                          Sensor 2:
-
-                          </strong>
-                        </figure>
-                        <div class="media-content">
-                          <div class="content">
-                          <canvas id="smoothie-chart-2" width="800" height="100">
-                            <div id="sensor2" class="epoch category10" style="height: 100px;"></div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="media" id="media-sensor3">
-                        <figure class="media-left">
-                          <strong>
-                          Sensor 3:
-
-                          </strong>
-                        </figure>
-                        <div class="media-content">
-                          <div class="content">
-                          <canvas id="smoothie-chart-3" width="800" height="100">
-                            <div id="sensor3" class="epoch category10" style="height: 100px;"></div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="media" id="media-sensor4">
-                        <figure class="media-left">
-                          <strong>
-                          Sensor 4:
-
-                          </strong>
-                        </figure>
-                        <div class="media-content">
-                          <div class="content">
-                          <canvas id="smoothie-chart-4" width="800" height="100">
-                            <div id="sensor4" class="epoch category10" style="height: 100px;"></div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="media" id="media-sensor5">
-                        <figure class="media-left">
-                          <strong>
-                          Sensor 5:
-
-                          </strong>
-                        </figure>
-                        <div class="media-content">
-                          <div class="content">
-                          <canvas id="smoothie-chart-5" width="800" height="100">
-                            <div id="sensor5" class="epoch category10" style="height: 100px;"></div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="media" id="media-sensor6">
-                        <figure class="media-left">
-                          <strong>
-                          Sensor 6:
-
-                          </strong>
-                        </figure>
-                        <div class="media-content">
-                          <div class="content">
-                          <canvas id="smoothie-chart-6" width="800" height="100">
-                            <div id="sensor6" class="epoch category10" style="height: 100px;"></div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="media" id="media-sensor7">
-                        <figure class="media-left">
-                          <strong>
-                          Sensor 7:
-
-                          </strong>
-                        </figure>
-                        <div class="media-content">
-                          <div class="content">
-                          <canvas id="smoothie-chart-7" width="800" height="100">
-                            <div id="sensor7" class="epoch category10" style="height: 100px;"></div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="media" id="media-sensor8">
-                        <figure class="media-left">
-                          <strong>
-                          Sensor 8:
-
-                          </strong>
-                        </figure>
-                        <div class="media-content">
-                          <div class="content">
-                          <canvas id="smoothie-chart-8" width="800" height="100">
-                            <div id="sensor8" class="epoch category10" style="height: 100px;"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <div id="spectrogram">
-                      </div>
-                    </div>
-
-                    <div class="graph-controls" style="padding-top: 20px; padding-bottom: 10px">
-                      <div class = "columns is-mobile" style="padding-bottom: 0px; margin-bottom: 0px;">
-                      <div class="column" style="padding-bottom: 0px; margin-bottom: 0px;">
-                        <label for="scales">Sensor 1:</label>
-                        <input type="checkbox" id="sensor1" name="sensor1" checked>
-                      </div>
-                      <div class="column" style="padding-bottom: 0px; margin-bottom: 0px;">
-                        <label for="scales">Sensor 2:</label>
-                        <input type="checkbox" id="sensor2" name="sensor2" checked>
-                      </div>
-                      <div class="column" style="padding-bottom: 0px; margin-bottom: 0px;">
-                        <label for="scales">Sensor 3:</label>
-                        <input type="checkbox" id="sensor3" name="sensor3" checked>
-                      </div>
-                      <div class="column" style="padding-bottom: 0px; margin-bottom: 0px;">
-                        <label for="scales">Sensor 4:</label>
-                        <input type="checkbox" id="sensor4" name="sensor4" checked>
-                      </div>
-                    </div>
-                      <div class = "columns is-mobile" style="padding-top: 0px;">
-                      <div class="column">
-                        <label for="scales">Sensor 5:</label>
-                        <input type="checkbox" id="sensor5" name="sensor5" checked>
-                      </div>
-                      <div class="column">
-                        <label for="scales">Sensor 6:</label>
-                        <input type="checkbox" id="sensor6" name="sensor6" checked>
-                      </div>
-                      <div class="column">
-                        <label for="scales">Sensor 7:</label>
-                        <input type="checkbox" id="sensor7" name="sensor7" checked>
-                      </div>
-                      <div class="column">
-                        <label for="scales">Sensor 8:</label>
-                        <input type="checkbox" id="sensor8" name="sensor8" checked>
-                      </div>
-
-                      </div>
-                    </div>
-              </div>
+        <div data-content="2">
+            <div class="overhead">
+                <span id="dashboard-title"> Production </span>
             </div>
         </div>
     </div>

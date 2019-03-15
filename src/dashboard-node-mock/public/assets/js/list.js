@@ -4,6 +4,7 @@ $(document).ready(function() {
 
   //SETS ACTIVE TO ALL OF THEM FOR NOW!
   var active = [1,1,1,1,1,1,1,1];
+  var collectionTimer = null;
 
   //To remove an element from the queue
   $("#commandList").on("click",".remove",function(){
@@ -29,24 +30,25 @@ $(document).ready(function() {
       $("#commandList").append($("<div class='list-group-item tinted' data-direction='Rest' data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> Rest " + duration + "s <a href='#' class='remove'>REMOVE ME</a></div>"));
     }
     else{
+
       // var loop = $("#loop").prop("checked") //returns true or false!
       //if 'else', must be collect!
-      var queue = [];
-      var count = $("#commandList div").length;
+
       //Amount of elements in the queue
 
-      $('#command-display').toggleClass('command-display-flash', 10000);
       //Flashes bright green briefly
+      if((count != 0) && !$( "#btn-collect" ).hasClass( "btn-danger" )){ //Non empty list and not already clicked
+          var queue = [];
+          var count = $("#commandList div").length;
 
-      console.log("There are " + count +" many items in the queue.");
-
-      if(count != 0){ //Non empty list!
-
-        //For each element in the queue, push their direction and duration
-        $('#commandList').children('div').each(function () {
-            var itemDuration = $(this).data("duration");
-            var itemDirection = $(this).data("direction")
-            queue.push([itemDirection, itemDuration]);
+          $('#btn-collect').toggleClass('btn-danger');
+          $('#btn-collect').html("Stop");
+          $('#command-display').toggleClass('command-display-flash', 10000);
+          //For each element in the queue, push their direction and duration
+          $('#commandList').children('div').each(function () {
+              var itemDuration = $(this).data("duration");
+              var itemDirection = $(this).data("direction")
+              queue.push([itemDirection, itemDuration]);
         });
 
         // if(loop){
@@ -84,7 +86,7 @@ $(document).ready(function() {
         let time = 0;
 
         //Controlling the timer.
-        let collectionTimer = setInterval(function(){
+        collectionTimer = setInterval(function(){
             if (time < totalTime) {
                 if($('#command-display').hasClass('command-display-flash')){
                   $('#command-display').removeClass('command-display-flash')
@@ -103,11 +105,23 @@ $(document).ready(function() {
               time++;
             }
             else {
-              $('#current-command').html("--");
-              $('#collectTime').html("N/A");
-              clearInterval(collectionTimer);
+                $('#btn-collect').toggleClass('btn-danger');
+                $('#btn-collect').html('Collect');
+                $('#current-command').html("--");
+                $('#collectTime').html("N/A");
+                clearInterval(collectionTimer);
             }
         }, 1000);
+
+      }
+      else if($('#btn-collect').hasClass('btn-danger')){
+          console.log("danger danger");
+          clearInterval(collectionTimer);
+          socket.emit("stop");
+          $('#btn-collect').toggleClass('btn-danger');
+          $('#btn-collect').html("Collect");
+          $('#current-command').html("--");
+          $('#collectTime').html("N/A");
 
       }
       else{

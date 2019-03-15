@@ -17,7 +17,7 @@ var collecting = false;
 var duration = 0;
 var direction = "none";
 var active = [];
-
+var collectionTimer=null;
 
 /*EXPRESS*/
 
@@ -297,6 +297,9 @@ function endTest(saved){
       console.log('Added some time samples');
     });
   }
+  else{
+      console.log("User terminated trial. No data saved.")
+  }
 
   //Both global variables are reset
   timeSamples = [timeHeaderToWrite];
@@ -313,7 +316,13 @@ function endTest(saved){
 
 //Socket IO:
 io.on('connection', function(socket){
-  console.log('a user connected');
+  console.log('A user connected');
+
+  socket.on('stop', function(){
+      clearInterval(collectionTimer);
+      collecting = false;
+      endTest(false);
+  });
 
   socket.on('collectQueue', function(clientRequest){
     collectQueue = clientRequest['queue'];
@@ -337,7 +346,7 @@ io.on('connection', function(socket){
 
     let j = 0;
     let time = 0;
-    let collectionTimer = setInterval(function(){
+    collectionTimer = setInterval(function(){
         if (time < totalTime) {
           if (time >= times[j]){
             // move onto next commmand
@@ -350,6 +359,7 @@ io.on('connection', function(socket){
         else {
           collecting = false;
           endTest(true, true);
+          console.log("Trial over. Ready for more data.");
           clearInterval(collectionTimer);
         }
         time++;
@@ -357,6 +367,7 @@ io.on('connection', function(socket){
 
 
   });
+
 
 
   // socket.on('collect', function(collectsocket){
@@ -384,11 +395,7 @@ io.on('connection', function(socket){
   //       }
   //   }, 1000);
   //
-  //   socket.on('stop', function(){
-  //     collecting = false;
-  //     clearInterval(collectionTimer);
-  //     endTest(false, true);
-  //   });
+
   //
   //   console.log(collectsocket);
   // });

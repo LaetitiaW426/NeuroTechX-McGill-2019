@@ -9,19 +9,15 @@
 
 }
 
-#dashboard-title-training{
-	margin-left: 10px;
-}
-
 #divide{
 	margin-top: 5px;
 	margin-bottom: 5px;
 }
 
-#dashboard-title-training{
+.dashboard-title{
 	font-size: 3vmax;
 	font-weight: bolder;
-
+	margin-left: 10px;
 }
 /* Navbar */
 .navbar .navbar-brand {
