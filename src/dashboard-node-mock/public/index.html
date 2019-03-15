@@ -137,7 +137,47 @@
             </div>
         <div data-content="2">
             <div class="overhead">
-                <span id="dashboard-title"> Production </span>
+                <span class="dashboard-title"> Production </span>
+            </div>
+            <hr id = "divide">
+            <div class="bar-graph-container">
+              <div class="bar-graph-spacing"> </div>
+              <div class="actual-bar-graph">
+                <div class = "bar-graph-axis">
+                  <ul class = "bar-graph-markings">
+                    <li class="percent-label">---100%---</li>
+                    <li class="percent-label">---80%---</li>
+                    <li class="percent-label">---60%---</li>
+                    <li class="percent-label">---40%---</li>
+                    <li class="percent-label">---20%---</li>
+                    <li class="percent-label bottom-label">---0%---</li>
+                  </ul>
+                </div>
+                <div class = "bar-container">
+                  <div class = "bar left-bar" id = "left-bar-control">
+                  </div>
+                  <div class = "bar right-bar" id = "right-bar-control">
+                  </div>
+                </div>
+                <div class = "bar-labels">
+                  <span class = "bar-label-left"> Left </span>
+                  <span class="bar-label-right"> Right </span>
+                </div>
+            </div>
+        </div>
+        <div class = "container-display">
+            <div class="command-display" id="confidence-display">
+                <div class = "current-command">
+                    <span> Left: </span>
+                    <span id = 'left-confidence'> -- </span>
+                    <span> % </span>
+                 </div>
+                <div class = "current-command">
+                    <span> Right: </span>
+                    <span id='right-confidence'> -- </span>
+                    <!-- collecTime class actually is what gets updated -->
+                    <span>%</span>
+                </div>
             </div>
         </div>
     </div>
