@@ -1,12 +1,14 @@
 // const { app, BrowserWindow } = require('electron');
 const dgram = require('dgram');
-const events = require('events');
+// const events = require('events');
 const express = require('express');
 const app_express = express();
 const server = app_express.listen(3000);
 const io = require('socket.io').listen(server);
 const fs = require('fs');
 
+var osc = require('node-osc');
+var oscServer = new osc.Server(12345, '127.0.0.1');
 
 const createCSVWriter = require('csv-writer').createObjectCsvWriter;
 var csvTimeWriter, csvFFTWriters;
@@ -146,42 +148,63 @@ let testNumber = settings['testNumber'];//Could read in data from dashboard
 
 /*UDP Client*/
 /* Function that creates a UDP client to listen to the OpenBCI GUI */
-function UDPClient(port, host) {
-  this.port = port;
-  this.host = host;
-  this.data = [];
-  this.events = new events.EventEmitter();
-  this.connection = dgram.createSocket('udp4');
-  this.connection.on('listening', this.onListening.bind(this));
-  this.connection.on('message', this.onMessage.bind(this));
-  this.connection.bind(this.port, this.host);
-};
+// function UDPClient(port, host) {
+//   this.port = port;
+//   this.host = host;
+//   this.data = [];
+//   this.events = new events.EventEmitter();
+//   this.connection = dgram.createSocket('udp4');
+//   this.connection.on('listening', this.onListening.bind(this));
+//   this.connection.on('message', this.onMessage.bind(this));
+//   this.connection.bind(this.port, this.host);
+// };
 
 /* Function that logs if UDP client is listening */
-UDPClient.prototype.onListening = function() {
-  console.log('Listening for data...');
-};
+// UDPClient.prototype.onListening = function() {
+//   console.log('Listening for data...');
+// };
 
 /* Function that, upon message from OpenBCI UDP, emits an event called 'sample'
 for further classification.*/
-UDPClient.prototype.onMessage = function(msg) {
-  parsedMessage = JSON.parse(msg.toString())
-  this.events.emit('sample', parsedMessage);
-  // for spectrogram
-  // const byteMessage = Buffer.from(msg.toString());
-  // if (parsedMessage['type'] == 'fft') {
-  //   broadcasting_client.send(msg, 12346, 'localhost', (err) => {
-  //     broadcasting_client.close();
-  //   });
-  // }
-};
+// UDPClient.prototype.onMessage = function(msg) {
+//   parsedMessage = JSON.parse(msg.toString())
+//   this.events.emit('sample', parsedMessage);
+//   // for spectrogram
+//   // const byteMessage = Buffer.from(msg.toString());
+//   // if (parsedMessage['type'] == 'fft') {
+//   //   broadcasting_client.send(msg, 12346, 'localhost', (err) => {
+//   //     broadcasting_client.close();
+//   //   });
+//   // }
+// };
 
 
 /* Here we actually create the UDP Client listening to 127.0.0.1:12345
 OpenBCI GUI must be set to communicate on this port for fft and time data */
-var client = new UDPClient(12345, "127.0.0.1");
+// var client = new UDPClient(12345, "127.0.0.1");
 
+oscServer.on("message", function (data) {
+    let time = getTimeValue();//Milliseconds since January 1 1970. Adjust?
+    let dataWithoutFirst = [];
 
+    let toWrite = {'time': time, 'data': data.slice(1)};
+    if (data[0] == 'fft') {
+      if (collecting) {
+        appendSample(toWrite, type="fft"); // Write to file
+      }
+      io.sockets.emit('fft', {'time': time, 'eeg': data.slice(1)});
+      // Regardless of if we're collecting, we're always sending data to client
+      // This data is used to make the graphs
+    }
+    else {
+      if (collecting) {
+        appendSample(toWrite, type="time");
+      }
+      io.sockets.emit('timeseries', {'time': time, 'eeg': data.slice(1)});
+      //This data is used to make the graphs
+    }
+      // console.log(data);
+});
 
 /* RECORDING DATA */
 
@@ -196,25 +219,25 @@ Data Format: {
                     data[index] is the eeg value at sensor-index
               }
 */
-client.events.on('sample', function(data) {
-  let time = getTimeValue();//Milliseconds since January 1 1970. Adjust?
-  let toWrite = {'time': time, 'data': data['data']};
-  if (data['type'] == 'fft') {
-    if (collecting) {
-      appendSample(toWrite, type="fft"); // Write to file
-    }
-    io.sockets.emit('fft', {'time': time, 'eeg': data});
-    // Regardless of if we're collecting, we're always sending data to client
-    // This data is used to make the graphs
-  }
-  else {
-    if (collecting) {
-      appendSample(toWrite, type="time");
-    }
-    io.sockets.emit('timeseries', {'time': time, 'eeg': data});
-    //This data is used to make the graphs
-  }
-});
+// client.events.on('sample', function(data) {
+//   let time = getTimeValue();//Milliseconds since January 1 1970. Adjust?
+//   let toWrite = {'time': time, 'data': data['data']};
+//   if (data['type'] == 'fft') {
+//     if (collecting) {
+//       appendSample(toWrite, type="fft"); // Write to file
+//     }
+//     io.sockets.emit('fft', {'time': time, 'eeg': data});
+//     // Regardless of if we're collecting, we're always sending data to client
+//     // This data is used to make the graphs
+//   }
+//   else {
+//     if (collecting) {
+//       appendSample(toWrite, type="time");
+//     }
+//     io.sockets.emit('timeseries', {'time': time, 'eeg': data});
+//     //This data is used to make the graphs
+//   }
+// });
 
 
 /* When we're collecting data (collecing = True), this function is run for every
