@@ -22,8 +22,6 @@ var active = [];
 var collectionTimer=null;
 
 /*EXPRESS*/
-
-
 // Sets static directory as public
 app_express.use(express.static(__dirname + '/public'));
 
@@ -51,6 +49,7 @@ function getTimeValue() {
 /*Time csv writer*/
 /* Formatting header of time CSV */
 const timeHeader = [{id: 'time', title: 'TIME'},
+                    {id: 'direction', title: 'DIRECTION'},
                     {id: 'channel1', title: 'CHANNEL 1'},
                     {id: 'channel2', title: 'CHANNEL 2'},
                     {id: 'channel3', title: 'CHANNEL 3'},
@@ -62,7 +61,9 @@ const timeHeader = [{id: 'time', title: 'TIME'},
 
 /* Setting up array for actually storing the time data where each index has
 the header data (time, channels 1-8) */
-const timeHeaderToWrite = {time: 'Time',
+const timeHeaderToWrite = {
+                  time: 'Time',
+                  direction: 'Direction',
                   channel1: 'Channel 1',
                   channel2: 'Channel 2',
                   channel3: 'Channel 3',
@@ -111,22 +112,22 @@ function setupCsvWriters(){
    //Formatting date as YYYY-MM-DD-hr-min-sec
 
     csvTimeWriter = createCSVWriter({
-          path: __dirname + '/data/time-test-' + testNumber + '-' + direction + '-'
+          path: __dirname + '/data/time-test-' + testNumber + '-'
                           + day + '.csv',
           //File name of CSV for time test
           header: timeHeader,
           append: true
     });
-    csvFFTWriters = [];
+    // csvFFTWriters = [];
     //For fft, makes array of CSV writers for each channel
-    for (i=0; i<8; i++) {
-      csvFFTWriters.push(createCSVWriter({
-        path: __dirname + '/data/fft-' + (i+1) + '-test-' + testNumber + '-'
-                        + direction + '-' + day + '.csv',//File name of CSVs for fft
-        header: fftHeader,
-        append: true
-      }));
-    }
+    // for (i=0; i<8; i++) {
+    //   csvFFTWriters.push(createCSVWriter({
+    //     path: __dirname + '/data/fft-' + (i+1) + '-test-' + testNumber + '-'
+    //                     + direction + '-' + day + '.csv',//File name of CSVs for fft
+    //     header: fftHeader,
+    //     append: true
+    //   }));
+    // }
 }
 
 
@@ -187,7 +188,7 @@ oscServer.on("message", function (data) {
     let time = getTimeValue();//Milliseconds since January 1 1970. Adjust?
     let dataWithoutFirst = [];
 
-    let toWrite = {'time': time, 'data': data.slice(1)};
+    let toWrite = {'time': time, 'data': data.slice(1), 'direction': direction};
     if (data[0] == 'fft') {
       if (collecting) {
         appendSample(toWrite, type="fft"); // Write to file
@@ -273,6 +274,7 @@ function appendSample(data, type){
 
   else if (type == 'time') {
     let timeSampleToPush = {time: data['time'],
+                    direction: data['direction'],
                     channel1: channelData[0],
                     channel2: channelData[1],
                     channel3: channelData[2],
@@ -305,15 +307,14 @@ function endTest(saved){
       if (err) throw err;
       console.log('Updated Test Number!');
       testNumber = settings['testNumber'];
-      setupCsvWriters();
     });
 
     // fft data is written to CSV
-    for (i = 0; i < 8; i++) {
-      csvFFTWriters[i].writeRecords(fftSamples[i]).then(() => {
-        console.log('Added some fft samples');
-      });
-    }
+    // for (i = 0; i < 8; i++) {
+    //   csvFFTWriters[i].writeRecords(fftSamples[i]).then(() => {
+    //     console.log('Added some fft samples');
+    //   });
+    // }
 
     // time data is written to CSV
     csvTimeWriter.writeRecords(timeSamples).then(() => {
@@ -325,7 +326,7 @@ function endTest(saved){
   }
 
   //Both global variables are reset
-  timeSamples = [timeHeaderToWrite];
+  timeSamples = [];
   fftSamples = fftSamplesHeaders;
 }
 
@@ -348,6 +349,7 @@ io.on('connection', function(socket){
   });
 
   socket.on('collectQueue', function(clientRequest){
+    timeSamples = [timeHeaderToWrite];
     collectQueue = clientRequest['queue'];
     console.log(collectQueue);
 
@@ -376,7 +378,6 @@ io.on('connection', function(socket){
             endTest(true, true); //end old test
             j += 1;
             direction = collectQueue[j][0]; //setup new one!
-            setupCsvWriters();
           }
         }
         else {
