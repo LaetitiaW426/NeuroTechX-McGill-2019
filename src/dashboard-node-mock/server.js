@@ -359,8 +359,9 @@ io.on('connection', function(socket){
         else {
           collecting = false;
           endTest(true, true);
-          console.log("Trial over. Ready for more data.");
           clearInterval(collectionTimer);
+          console.log("Trial over. Ready for more data.");
+
         }
         time++;
     }, 1000);

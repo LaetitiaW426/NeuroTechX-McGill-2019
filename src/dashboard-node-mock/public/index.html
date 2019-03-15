@@ -93,12 +93,6 @@
                     <div class="header"> Queue </div>
                         <!-- commandBank is contains the queue of commands -->
                         <div class="left" id="commandBank">
-                            <!-- "list-group col" is a flexbox that stores "list-group-items" in a list -->
-                            <div id="commandList" class="list-group col">
-                                <div class="list-group-item tinted" data-direction="Left" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Left 10s <a href='#' class='remove'>REMOVE ME</a></div>
-                                <div class="list-group-item tinted" data-direction="Right" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Right 10s <a href='#' class='remove'>REMOVE ME</a></div>
-                                <div class="list-group-item tinted" data-direction="Rest" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Rest 10s <a href='#' class='remove'>REMOVE ME</a></div>
-                            </div>
                             <!-- addItem contains the controls to add elements to the queue and start collecting -->
                             <div class="addItem">
                                 <!-- "Add to queue" and "Duration (sec)" are both labels for the time input -->
@@ -118,6 +112,13 @@
                                 <!-- This is the "collect" button. Also bootstrap formatted -->
                                 <button class="selection btn btn-primary btn collect" id='btn-collect'>Collect</button>
                             </div>
+                            <!-- "list-group col" is a flexbox that stores "list-group-items" in a list -->
+                            <div id="commandList" class="list-group col">
+                                <div class="list-group-item tinted" data-direction="Left" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Left 10s <a href='#' class='remove'>REMOVE ME</a></div>
+                                <div class="list-group-item tinted" data-direction="Right" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Right 10s <a href='#' class='remove'>REMOVE ME</a></div>
+                                <div class="list-group-item tinted" data-direction="Rest" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Rest 10s <a href='#' class='remove'>REMOVE ME</a></div>
+                            </div>
+
 
                         </div>
                   <!-- <h3> Collecting now: <span id="collectDirection"> None </span></h3> -->

@@ -135,6 +135,9 @@ canvas {
   min-height: 300px;
 }
 
+#commandList{
+	margin-bottom: 10px;
+}
 
 /*Display Styling*/
 

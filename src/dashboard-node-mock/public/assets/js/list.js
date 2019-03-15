@@ -4,6 +4,7 @@ $(document).ready(function() {
 
   //SETS ACTIVE TO ALL OF THEM FOR NOW!
   var active = [1,1,1,1,1,1,1,1];
+  //Made global so stop button can clear it
   var collectionTimer = null;
 
   //To remove an element from the queue
