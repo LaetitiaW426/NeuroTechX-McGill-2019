@@ -111,7 +111,7 @@ function setupCsvWriters(){
    //Formatting date as YYYY-MM-DD-hr-min-sec
 
     csvTimeWriter = createCSVWriter({
-          path: __dirname + '/data/time-test-' + testNumber + '-' + direction + '-'
+          path: __dirname + '/data/time-test-' + trialName + '-' + direction + '-'
                           + day + '.csv',
           //File name of CSV for time test
           header: timeHeader,
@@ -121,7 +121,7 @@ function setupCsvWriters(){
     //For fft, makes array of CSV writers for each channel
     for (i=0; i<8; i++) {
       csvFFTWriters.push(createCSVWriter({
-        path: __dirname + '/data/fft-' + (i+1) + '-test-' + testNumber + '-'
+        path: __dirname + '/data/fft-' + (i+1) + '-test-' + trialName + '-'
                         + direction + '-' + day + '.csv',//File name of CSVs for fft
         header: fftHeader,
         append: true
@@ -139,7 +139,7 @@ var settings = JSON.parse(fs.readFileSync(__dirname + '/data_settings.json', 'ut
 console.log("Currently running on these settings: \n" + settings);
 let testNumber = settings['testNumber'];//Could read in data from dashboard
 
-
+var trialName=null;
 
 
 
@@ -349,8 +349,9 @@ io.on('connection', function(socket){
 
   socket.on('collectQueue', function(clientRequest){
     collectQueue = clientRequest['queue'];
+    trialName = clientRequest['trialName']
     console.log(collectQueue);
-
+    console.log("This is trial: " + trialName);
     active = clientRequest['sensors'];
 
     let totalTime = 0;

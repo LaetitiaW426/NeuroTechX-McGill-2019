@@ -80,10 +80,7 @@
         <div class="is-active" data-content='1'>
                 <div class="overhead">
                     <span class="dashboard-title"> Training </span>
-                    <!-- <form class="trial">
-                      Trial Name:
-                      <input type="text" name="trial-input"><br>
-                    </form> -->
+
                     <!-- <img class="logo-image" src="assets/img/mcgill-neurotech.png" alt="McGill Neurotech"> -->
                 </div>
                 <hr id = "divide">
@@ -98,8 +95,12 @@
                                 <label for="durationInput"><strong>Add to Queue</strong></label>
                                 <div class="form-group row">
                                     <!-- uses bootstrap class col-sm-6 to format label -->
-                                    <label for="durationInput" class="col-sm-6 col-form-label">Duration (sec)</label>
-                                    <input id="durationInput" type="text" class="timer form-control" value="10"></input>
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="basic-addon1">Duration (sec)</span>
+                                        </div>
+                                            <input type="text" class="form-control" placeholder="Enter duration here..." aria-label="Enter duration here.." aria-describedby="basic-addon1" value=10>
+                                        </div>
                                 </div>
                                 <!-- These buttons are used to add elements to the queue
                                 They are formatted using bootstrap classes -->
@@ -109,7 +110,15 @@
                                     <button class="selection btn btn-outline-secondary direction-right">Right</button>
                                 </div><br>
                                 <!-- This is the "collect" button. Also bootstrap formatted -->
-                                <button class="selection btn btn-primary btn collect" id='btn-collect'>Collect</button>
+                                <div class = "collect-form">
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="basic-addon1">Trial Name</span>
+                                        </div>
+                                        <input type="text" class="form-control" id="trial-name" placeholder="Enter trial name..." aria-label="Enter trial name..." aria-describedby="basic-addon1">
+                                    </div>
+                                    <button class="selection btn btn-primary btn collect" id='btn-collect'>Collect</button>
+                                </div>
                             </div>
                             <!-- "list-group col" is a flexbox that stores "list-group-items" in a list -->
                             <div id="commandList" class="list-group col">
