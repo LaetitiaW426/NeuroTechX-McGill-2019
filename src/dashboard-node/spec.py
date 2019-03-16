@@ -15,7 +15,7 @@ specgram = []
 @sio.on('fft')
 def fft(data):
     fig.clear()
-    time = data['time']
+    _time = data['time']
     data = data['eeg']['data'][0] # 0th chanel
     mean = np.mean(data[6:13])
     arr.append(mean)
