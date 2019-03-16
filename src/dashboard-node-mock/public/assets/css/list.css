@@ -201,6 +201,10 @@ canvas {
 	opacity: .9;
 }
 
+.command-display-use{
+	opacity: 0.7;
+}
+
 /*Production Dashboard*/
 
 .bar-graph-container{
