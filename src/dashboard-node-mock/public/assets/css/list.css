@@ -100,6 +100,13 @@ canvas {
 	border-radius: 10px;
 }
 
+.form-group{
+	margin-left: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+	padding-right: 15px;
+}
+
 .btn-group{
     margin-bottom: 20px;
 	text-align: center;
@@ -108,6 +115,14 @@ canvas {
 
 .selection{
     margin-bottom: 20px;
+}
+.collect-form{
+	padding-right: 15px;
+}
+
+.trial-name{
+	display: inline-block;
+	float: right;
 }
 
 .list-group-item:hover {
@@ -155,6 +170,7 @@ canvas {
     float: right;
 	width: 60%;
 	height: 85%;
+	z-index: 50;
 }
 
 .command-display{
@@ -183,6 +199,10 @@ canvas {
 
 .command-display-flash{
 	opacity: .9;
+}
+
+.command-display-use{
+	opacity: 0.7;
 }
 
 /*Production Dashboard*/

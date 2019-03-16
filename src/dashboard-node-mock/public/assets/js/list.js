@@ -1,7 +1,7 @@
 $(document).ready(function() {
   console.log("List javascript loaded!");
   var list = document.getElementById('commandBank');
-
+  var trialName;
   //SETS ACTIVE TO ALL OF THEM FOR NOW!
   var active = [1,1,1,1,1,1,1,1];
   //Made global so stop button can clear it
@@ -41,7 +41,7 @@ $(document).ready(function() {
       if((count != 0) && !$( "#btn-collect" ).hasClass( "btn-danger" )){ //Non empty list and not already clicked
           var queue = [];
           var count = $("#commandList div").length;
-
+          trialName = $('#trial-name').val();
           $('#btn-collect').toggleClass('btn-danger');
           $('#btn-collect').html("Stop");
           $('#command-display').toggleClass('command-display-flash', 10000);
@@ -59,7 +59,7 @@ $(document).ready(function() {
         //Finally emits a collectQueue!
 
         //Gives the queue array with the direcions/durations and active sensors
-        socket.emit("collectQueue", {queue: queue, sensors: active});
+        socket.emit("collectQueue", {queue: queue, sensors: active, trialName: trialName});
 
         let totalTime = 0;
         let times = [];
