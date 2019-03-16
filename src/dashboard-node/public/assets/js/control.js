@@ -1,14 +1,22 @@
-// Add javascript here, sorry for the mess and repitition!
 $(document).ready(function() {
   var timeLeft;
+
   //Active graphs (Used for sending information to server)
   let active = [1,1,1,1,1,1,1,1];
   var collecting = false;
 
-  //Play pause button
+  //Play pause button for testing dashboard
   var btn = $(".neurofeedback-toggle");
   btn.click(function() {
     btn.toggleClass("paused");
+    return false;
+  });
+
+  //Production dashboard start and stop button
+  var productionBtn = $(".production-start-button");
+  productionBtn.click(function() {
+    productionBtn.text() == "Stop" ? productionBtn.text("Start") : productionBtn.text("Stop");
+    productionBtn.toggleClass("production-stop");
     return false;
   });
 
@@ -40,6 +48,7 @@ $(document).ready(function() {
     }
   });
 
+
   //Depending on range, changes the countdown text and vice versa
   var range = $('.input-range').val();
   $(".input-range").on('input', function(){
@@ -64,6 +73,7 @@ $(document).ready(function() {
       $(".timer").val(range);
     }
   });
+
 
 
 
@@ -92,6 +102,7 @@ $(document).ready(function() {
           }
 
         //Allows the countdown to work ***VERY crude currently, need to fix! ***
+        //Timer runs in parallel with timer in server.js
         timeLeft = duration;
 
         $('.selection').addClass('active');
@@ -116,12 +127,13 @@ $(document).ready(function() {
             $('.selection').removeClass('active');
             $('.selection').addClass('imagery-inactive');
             collecting = false;
+            //Resets timer and input to 10s
             $(".timer").val(10);
             $(".input-range").val(10);
           }
         }, 1000);
 
-        //Adds a toggle class for the button that was clicked
+        //After timer expires adds a toggle class for the button that was clicked
         if (clicked.hasClass('toggle')) {
           clicked.removeClass('toggle');
         }
@@ -160,7 +172,7 @@ $(document).ready(function() {
 let counter = 1;
 
 
-
+//Making timeseries chart. Always receiving data from server. For all channels.
 socket.on('timeseries', function(timeseries) {
     if(counter % 20 == 0){
       counter = 1;
@@ -188,6 +200,7 @@ socket.on('timeseries', function(timeseries) {
     // sensorChart1.push(newData);
 });
 
+//Updates timeseries chart every second?
 setInterval(function(){
   for(i = 0; i < 8; i++){
     charts[i].addTimeSeries(lines[i], {lineWidth:2,
@@ -316,4 +329,6 @@ setInterval(function(){
   //         z = [];
   //     }
   // });
+
+
 });

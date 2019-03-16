@@ -17,7 +17,7 @@ var collecting = false;
 var duration = 0;
 var direction = "none";
 var active = [];
-
+var collectionTimer=null;
 
 /*EXPRESS*/
 
@@ -107,6 +107,22 @@ function setupCsvWriters(){
                    date.getDate() + '-' + date.getHours() + '-' +
                    date.getMinutes() + '-' + date.getSeconds();
    //Formatting date as YYYY-MM-DD-hr-min-sec
+
+   csvTimeStampWriter = createCSVWriter({
+         path: __dirname + '/data/time-stamp-' + testNumber + '-'
+                         + day + '.csv',
+         //File name of CSV for time test
+         header: [{id: 'start_time', title: 'START TIME'},
+                             {id: 'direction', title: 'DIRECTION'},
+                             {id: 'duration', title: 'DURATION'}],
+         append: true
+   });
+
+   csvTimeStampWriter.writeRecords([{start_time: 'START TIME',
+               direction: 'DIRECTION',
+               duration: 'DURATION',
+             }]);
+
 
     csvTimeWriter = createCSVWriter({
           path: __dirname + '/data/time-test-' + testNumber + '-' + direction + '-'
@@ -231,8 +247,8 @@ function appendSample(data, type){
       channelData[i] = null;
     }
   }
-  //When fft data is passe
-  if (type =='fft') {d
+  //When fft data is passed
+  if (type =='fft') {
     let fftSamplesToPush = [];
     //For each channel gets values for 1-125Hz
     for (i=0; i<8; i++) {
@@ -277,29 +293,37 @@ function endTest(saved){
     settings['testNumber'] += 1;
     let settingsString = JSON.stringify(settings);
 
+    //Updating json file containing test number
     fs.writeFile('data_settings.json', settingsString, 'utf8', function(err){
       if (err) throw err;
       console.log('Updated Test Number!');
       testNumber = settings['testNumber'];
     });
-
-    // fft data is written to CSV
-    for (i = 0; i < 8; i++) {
-      csvFFTWriters[i].writeRecords(fftSamples[i]).then(() => {
-        console.log('Added some fft samples');
-      });
-    }
-
-    // time data is written to CSV
-    csvTimeWriter.writeRecords(timeSamples).then(() => {
-      console.log('Added some time samples');
-    });
+  }
+  else{
+      console.log("User terminated trial. No data saved.")
   }
 
   //Both global variables are reset
   timeSamples = [timeHeaderToWrite];
   fftSamples = fftSamplesHeaders;
 }
+
+function writeTime(start_time, duration) {
+  // currrent_time = getTimeValue();
+  // testNumber, direction
+  csvTimeStampWriter.writeRecords([{start_time: start_time,
+                    direction: direction, duration: duration}]).then(() => {
+    console.log('Added time stamp 😀');
+  });
+}
+
+
+// test_number<other info>.csv
+// time | direction | duration
+
+
+
 
 // const broadcasting_client = dgram.createSocket('udp4');
 
@@ -311,39 +335,107 @@ function endTest(saved){
 
 //Socket IO:
 io.on('connection', function(socket){
-  console.log('a user connected');
-  socket.on('collect', function(collectsocket){
-    /* From the client when a button is clicked a collect message will be sent! */
-    /* Will include, duration, direction and visible channels as an array */
-    duration = collectsocket['duration'];
-    direction = collectsocket['command'];
-    active = collectsocket['sensors'];
-    setupCsvWriters();
-    let timeLeft = duration;
-    collecting = true;
+  console.log('A user connected');
 
-    /* Timer that lasts for 'duration', and sets collecting to False at end
-    and runs endTest function.*/
-    let collectionTimer = setInterval(function(){
-        timeLeft--;
-        if(timeLeft <= 0){
-          collecting = false;
-          clearInterval(collectionTimer);
-          endTest(true);
-        }
-    }, 1000);
-
-    /*If test is interrupted by a stop command, then this sets collecting to
-    False and runs endTest so that file is NOT saved */
-    socket.on('stop', function(){
-      collecting = false;
+  socket.on('stop', function(){
       clearInterval(collectionTimer);
+      collecting = false;
       endTest(false);
+  });
+
+  socket.on('collectQueue', function(clientRequest){
+    collectQueue = clientRequest['queue'];
+    console.log(collectQueue);
+
+    active = clientRequest['sensors'];
+
+    let totalTime = 0;
+    let times = [];
+    collectQueue.forEach(function(command){
+      totalTime+=command[1];
+      times.push(totalTime);
     });
 
-    console.log(collectsocket);
+    console.log(totalTime);
+
+
+    direction = collectQueue[0][0];
+    setupCsvWriters();
+    // collecting = true;
+    let start_time = getTimeValue();
+
+    let j = 0;
+    let time = 0;
+    collectionTimer = setInterval(function(){
+        if (time < totalTime) {
+          if (time >= times[j]){
+            // move onto next commmand
+            if (j > 0){
+              writeTime(start_time, times[j]-times[j-1]);
+
+            }
+            else{
+              writeTime(start_time, times[j]);
+
+            }
+            start_time = getTimeValue();
+
+
+            // endTest(true, true); //end old test
+            j += 1;
+            direction = collectQueue[j][0]; //setup new one!
+            // setupCsvWriters();
+          }
+        }
+        else {
+          if (times.length > 1) {
+              writeTime(start_time, times[j]-times[j-1]);
+          }
+          collecting = false;
+          endTest(true, true);
+          clearInterval(collectionTimer);
+          console.log("Trial over. Ready for more data.");
+
+        }
+        time++;
+    }, 1000);
+
+
   });
+
+
+
+  // socket.on('collect', function(collectsocket){
+  //   /* From the client when a button is clicked a collect message will be sent! */
+  //   /* Will include, duration, direction and visible channels as an array */
+  //   duration = collectsocket['duration'];
+  //   direction = collectsocket['command'];
+  //   active = collectsocket['sensors'];
+  //   setupCsvWriters();
+  //
+  //   //Sets up collection queue and whether to loop
+  //   //loop = collectsocket['loop']; ONCE LOOP IS ADDED!
+  //   //collectQueue = collectsocket['queue'];
+  //
+  //
+  //   let timeLeft = duration;
+  //   collecting = true;
+  //
+  //   let collectionTimer = setInterval(function(){
+  //       timeLeft--;
+  //       if(timeLeft <= 0){
+  //         collecting = false;
+  //         clearInterval(collectionTimer);
+  //         endTest(true, true);
+  //       }
+  //   }, 1000);
+  //
+
+  //
+  //   console.log(collectsocket);
+  // });
 });
+
 
 
 

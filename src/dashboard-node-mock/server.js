@@ -1,15 +1,23 @@
 // const { app, BrowserWindow } = require('electron');
 const dgram = require('dgram');
-const events = require('events');
+// const events = require('events');
 const express = require('express');
 const app_express = express();
 const server = app_express.listen(3000);
 const io = require('socket.io').listen(server);
 const fs = require('fs');
 
+var osc = require('node-osc');
+var oscServer = new osc.Server(12345, '127.0.0.1');
 
 const createCSVWriter = require('csv-writer').createObjectCsvWriter;
 var csvTimeWriter, csvFFTWriters;
+
+const sendRate = 0.25; //In fraction per second
+const samplesPerSecond = 250;
+var samplesToSend = samplesPerSecond * sendRate;
+var toSend = [];
+var mode = "training";
 
 //Will determine if collecting and sending to file currently.
 //Other values will only be updated if collecting is true!
@@ -17,11 +25,9 @@ var collecting = false;
 var duration = 0;
 var direction = "none";
 var active = [];
-
+var collectionTimer=null;
 
 /*EXPRESS*/
-
-
 // Sets static directory as public
 app_express.use(express.static(__dirname + '/public'));
 
@@ -49,6 +55,7 @@ function getTimeValue() {
 /*Time csv writer*/
 /* Formatting header of time CSV */
 const timeHeader = [{id: 'time', title: 'TIME'},
+                    {id: 'direction', title: 'DIRECTION'},
                     {id: 'channel1', title: 'CHANNEL 1'},
                     {id: 'channel2', title: 'CHANNEL 2'},
                     {id: 'channel3', title: 'CHANNEL 3'},
@@ -60,7 +67,9 @@ const timeHeader = [{id: 'time', title: 'TIME'},
 
 /* Setting up array for actually storing the time data where each index has
 the header data (time, channels 1-8) */
-const timeHeaderToWrite = {time: 'Time',
+const timeHeaderToWrite = {
+                  time: 'Time',
+                  direction: 'Direction',
                   channel1: 'Channel 1',
                   channel2: 'Channel 2',
                   channel3: 'Channel 3',
@@ -103,28 +112,28 @@ var fftSamples = fftSamplesHeaders;
 /* Sets the csvwriters to the correct paths! */
 function setupCsvWriters(){
     let date = new Date();
-    var day = date.getFullYear() + '-' + date.getMonth() + '-' +
+    var day = date.getFullYear() + '-' + (date.getMonth()+1) + '-' +
                    date.getDate() + '-' + date.getHours() + '-' +
                    date.getMinutes() + '-' + date.getSeconds();
    //Formatting date as YYYY-MM-DD-hr-min-sec
 
     csvTimeWriter = createCSVWriter({
-          path: __dirname + '/data/time-test-' + testNumber + '-' + direction + '-'
+          path: __dirname + '/data/time-test-' + trialName + '-'
                           + day + '.csv',
           //File name of CSV for time test
           header: timeHeader,
           append: true
     });
-    csvFFTWriters = [];
+    // csvFFTWriters = [];
     //For fft, makes array of CSV writers for each channel
-    for (i=0; i<8; i++) {
-      csvFFTWriters.push(createCSVWriter({
-        path: __dirname + '/data/fft-' + (i+1) + '-test-' + testNumber + '-'
-                        + direction + '-' + day + '.csv',//File name of CSVs for fft
-        header: fftHeader,
-        append: true
-      }));
-    }
+    // for (i=0; i<8; i++) {
+    //   csvFFTWriters.push(createCSVWriter({
+    //     path: __dirname + '/data/fft-' + (i+1) + '-test-' + testNumber + '-'
+    //                     + direction + '-' + day + '.csv',//File name of CSVs for fft
+    //     header: fftHeader,
+    //     append: true
+    //   }));
+    // }
 }
 
 
@@ -133,12 +142,12 @@ function setupCsvWriters(){
 
 
 /* These are manual settings that we can use to keep track of testNumber as an example */
-var settings = JSON.parse(fs.readFileSync(__dirname + '/data_settings.json', 'utf8'));
-console.log("Currently running on these settings: \n" + settings);
-let testNumber = settings['testNumber'];//Could read in data from dashboard
+// var settings = JSON.parse(fs.readFileSync(__dirname + '/data_settings.json', 'utf8'));
+// console.log("Currently running on these settings: \n" + settings);
+// let testNumber = settings['testNumber'];//Could read in data from dashboard
 
 
-
+var trialName=null;
 
 
 /*SETTING UP NETWORKING*/
@@ -146,42 +155,76 @@ let testNumber = settings['testNumber'];//Could read in data from dashboard
 
 /*UDP Client*/
 /* Function that creates a UDP client to listen to the OpenBCI GUI */
-function UDPClient(port, host) {
-  this.port = port;
-  this.host = host;
-  this.data = [];
-  this.events = new events.EventEmitter();
-  this.connection = dgram.createSocket('udp4');
-  this.connection.on('listening', this.onListening.bind(this));
-  this.connection.on('message', this.onMessage.bind(this));
-  this.connection.bind(this.port, this.host);
-};
+// function UDPClient(port, host) {
+//   this.port = port;
+//   this.host = host;
+//   this.data = [];
+//   this.events = new events.EventEmitter();
+//   this.connection = dgram.createSocket('udp4');
+//   this.connection.on('listening', this.onListening.bind(this));
+//   this.connection.on('message', this.onMessage.bind(this));
+//   this.connection.bind(this.port, this.host);
+// };
 
 /* Function that logs if UDP client is listening */
-UDPClient.prototype.onListening = function() {
-  console.log('Listening for data...');
-};
+// UDPClient.prototype.onListening = function() {
+//   console.log('Listening for data...');
+// };
 
 /* Function that, upon message from OpenBCI UDP, emits an event called 'sample'
 for further classification.*/
-UDPClient.prototype.onMessage = function(msg) {
-  parsedMessage = JSON.parse(msg.toString())
-  this.events.emit('sample', parsedMessage);
-  // for spectrogram
-  // const byteMessage = Buffer.from(msg.toString());
-  // if (parsedMessage['type'] == 'fft') {
-  //   broadcasting_client.send(msg, 12346, 'localhost', (err) => {
-  //     broadcasting_client.close();
-  //   });
-  // }
-};
+// UDPClient.prototype.onMessage = function(msg) {
+//   parsedMessage = JSON.parse(msg.toString())
+//   this.events.emit('sample', parsedMessage);
+//   // for spectrogram
+//   // const byteMessage = Buffer.from(msg.toString());
+//   // if (parsedMessage['type'] == 'fft') {
+//   //   broadcasting_client.send(msg, 12346, 'localhost', (err) => {
+//   //     broadcasting_client.close();
+//   //   });
+//   // }
+// };
 
 
 /* Here we actually create the UDP Client listening to 127.0.0.1:12345
 OpenBCI GUI must be set to communicate on this port for fft and time data */
-var client = new UDPClient(12345, "127.0.0.1");
+// var client = new UDPClient(12345, "127.0.0.1");
 
+oscServer.on("message", function (data) {
 
+    let time = getTimeValue();//Milliseconds since January 1 1970. Adjust?
+    let dataWithoutFirst = [];
+
+    let toWrite = {'time': time, 'data': data.slice(1), 'direction': direction};
+
+    if(mode == "production"){
+      toSend.push(toWrite);
+      if(toSend.length > samplesToSend){
+        io.sockets.emit('timeseries', {'data': toSend});
+        toSend = [];
+      }
+
+    }
+    else{
+      if (data[0] == 'fft') {
+        if (collecting) {
+          appendSample(toWrite, type="fft"); // Write to file
+        }
+        io.sockets.emit('fft', {'time': time, 'eeg': data.slice(1)});
+        // Regardless of if we're collecting, we're always sending data to client
+        // This data is used to make the graphs
+      }
+      else {
+        if (collecting) {
+          appendSample(toWrite, type="time");
+        }
+        io.sockets.emit('timeseries', {'time': time, 'eeg': data.slice(1)});
+        //This data is used to make the graphs
+      }
+    }
+
+      // console.log(data);
+});
 
 /* RECORDING DATA */
 
@@ -196,25 +239,25 @@ Data Format: {
                     data[index] is the eeg value at sensor-index
               }
 */
-client.events.on('sample', function(data) {
-  let time = getTimeValue();//Milliseconds since January 1 1970. Adjust?
-  let toWrite = {'time': time, 'data': data['data']};
-  if (data['type'] == 'fft') {
-    if (collecting) {
-      appendSample(toWrite, type="fft"); // Write to file
-    }
-    io.sockets.emit('fft', {'time': time, 'eeg': data});
-    // Regardless of if we're collecting, we're always sending data to client
-    // This data is used to make the graphs
-  }
-  else {
-    if (collecting) {
-      appendSample(toWrite, type="time");
-    }
-    io.sockets.emit('timeseries', {'time': time, 'eeg': data});
-    //This data is used to make the graphs
-  }
-});
+// client.events.on('sample', function(data) {
+//   let time = getTimeValue();//Milliseconds since January 1 1970. Adjust?
+//   let toWrite = {'time': time, 'data': data['data']};
+//   if (data['type'] == 'fft') {
+//     if (collecting) {
+//       appendSample(toWrite, type="fft"); // Write to file
+//     }
+//     io.sockets.emit('fft', {'time': time, 'eeg': data});
+//     // Regardless of if we're collecting, we're always sending data to client
+//     // This data is used to make the graphs
+//   }
+//   else {
+//     if (collecting) {
+//       appendSample(toWrite, type="time");
+//     }
+//     io.sockets.emit('timeseries', {'time': time, 'eeg': data});
+//     //This data is used to make the graphs
+//   }
+// });
 
 
 /* When we're collecting data (collecing = True), this function is run for every
@@ -231,8 +274,8 @@ function appendSample(data, type){
       channelData[i] = null;
     }
   }
-  //When fft data is passe
-  if (type =='fft') {d
+  //When fft data is passed
+  if (type =='fft') {
     let fftSamplesToPush = [];
     //For each channel gets values for 1-125Hz
     for (i=0; i<8; i++) {
@@ -250,6 +293,7 @@ function appendSample(data, type){
 
   else if (type == 'time') {
     let timeSampleToPush = {time: data['time'],
+                    direction: data['direction'],
                     channel1: channelData[0],
                     channel2: channelData[1],
                     channel3: channelData[2],
@@ -274,30 +318,34 @@ test number increments by one and testNumber is reset. timeSamples and
 fftSamples are reset as well, to just the headers.Takes boolean argument. */
 function endTest(saved){
   if(saved){
-    settings['testNumber'] += 1;
-    let settingsString = JSON.stringify(settings);
-
-    fs.writeFile('data_settings.json', settingsString, 'utf8', function(err){
-      if (err) throw err;
-      console.log('Updated Test Number!');
-      testNumber = settings['testNumber'];
-    });
+    // settings['testNumber'] += 1;
+    // let settingsString = JSON.stringify(settings);
+    //
+    // //Updating json file containing test number
+    // fs.writeFile('data_settings.json', settingsString, 'utf8', function(err){
+    //   if (err) throw err;
+    //   console.log('Updated Test Number!');
+    //   testNumber = settings['testNumber'];
+    // });
 
     // fft data is written to CSV
-    for (i = 0; i < 8; i++) {
-      csvFFTWriters[i].writeRecords(fftSamples[i]).then(() => {
-        console.log('Added some fft samples');
-      });
-    }
+    // for (i = 0; i < 8; i++) {
+    //   csvFFTWriters[i].writeRecords(fftSamples[i]).then(() => {
+    //     console.log('Added some fft samples');
+    //   });
+    // }
 
     // time data is written to CSV
     csvTimeWriter.writeRecords(timeSamples).then(() => {
       console.log('Added some time samples');
     });
   }
+  else{
+      console.log("User terminated trial. No data saved.")
+  }
 
   //Both global variables are reset
-  timeSamples = [timeHeaderToWrite];
+  timeSamples = [];
   fftSamples = fftSamplesHeaders;
 }
 
@@ -311,39 +359,106 @@ function endTest(saved){
 
 //Socket IO:
 io.on('connection', function(socket){
-  console.log('a user connected');
-  socket.on('collect', function(collectsocket){
-    /* From the client when a button is clicked a collect message will be sent! */
-    /* Will include, duration, direction and visible channels as an array */
-    duration = collectsocket['duration'];
-    direction = collectsocket['command'];
-    active = collectsocket['sensors'];
-    setupCsvWriters();
-    let timeLeft = duration;
-    collecting = true;
+  console.log('A user connected');
 
-    /* Timer that lasts for 'duration', and sets collecting to False at end
-    and runs endTest function.*/
-    let collectionTimer = setInterval(function(){
-        timeLeft--;
-        if(timeLeft <= 0){
-          collecting = false;
-          clearInterval(collectionTimer);
-          endTest(true);
-        }
-    }, 1000);
+  if(mode == "production"){
+    socket.on("Ship to ML", function(data){
+      io.sockets.emit('ML', {'data': data});
+    });
+  }
 
-    /*If test is interrupted by a stop command, then this sets collecting to
-    False and runs endTest so that file is NOT saved */
-    socket.on('stop', function(){
-      collecting = false;
+  socket.on('stop', function(){
       clearInterval(collectionTimer);
+      collecting = false;
       endTest(false);
+  });
+
+  socket.on('collectQueue', function(clientRequest){
+    mode = "training";
+    timeSamples = [timeHeaderToWrite];
+    collectQueue = clientRequest['queue'];
+    trialName = clientRequest['trialName']
+    console.log(collectQueue);
+    console.log("This is trial: " + trialName);
+
+
+    active = clientRequest['sensors'];
+
+    let totalTime = 0;
+    let times = [];
+    collectQueue.forEach(function(command){
+      totalTime+=command[1];
+      times.push(totalTime);
     });
 
-    console.log(collectsocket);
+    console.log(totalTime);
+
+
+    direction = collectQueue[0][0];
+    setupCsvWriters();
+    collecting = true;
+
+    let j = 0;
+    let time = 0;
+    collectionTimer = setInterval(function(){
+        if (time < totalTime) {
+          if (time >= times[j]){
+            // move onto next commmand
+            endTest(true, true); //end old test
+            j += 1;
+            direction = collectQueue[j][0]; //setup new one!
+          }
+        }
+        else {
+          collecting = false;
+          endTest(true, true);
+          clearInterval(collectionTimer);
+          console.log("Trial over.");
+        }
+        time++;
+    }, 1000);
+
+
+
   });
+  //Production
+  socket.on('production', function(data){
+    toSend = [];
+    mode = "production";
+    console.log(mode);
+  });
+
+  // socket.on('collect', function(collectsocket){
+  //   /* From the client when a button is clicked a collect message will be sent! */
+  //   /* Will include, duration, direction and visible channels as an array */
+  //   duration = collectsocket['duration'];
+  //   direction = collectsocket['command'];
+  //   active = collectsocket['sensors'];
+  //   setupCsvWriters();
+  //
+  //   //Sets up collection queue and whether to loop
+  //   //loop = collectsocket['loop']; ONCE LOOP IS ADDED!
+  //   //collectQueue = collectsocket['queue'];
+  //
+  //
+  //   let timeLeft = duration;
+  //   collecting = true;
+  //
+  //   let collectionTimer = setInterval(function(){
+  //       timeLeft--;
+  //       if(timeLeft <= 0){
+  //         collecting = false;
+  //         clearInterval(collectionTimer);
+  //         endTest(true, true);
+  //       }
+  //   }, 1000);
+  //
+
+  //
+  //   console.log(collectsocket);
+  // });
 });
+
 
 
 
