@@ -78,7 +78,7 @@ class NavGame(arcade.Window):
   def on_key_release(self, symbol, modifiers):
     self.chair.set_motion("")
 
-  def testCollisions():
+  def testCollisions(self):
     pass
 
 class Chair():
