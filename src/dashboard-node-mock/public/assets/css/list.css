@@ -4,7 +4,8 @@
 }
 
 #tab-content{
-	height: 100%;
+	height: 85%;
+	margin-top: 30px;
 }
 
 
@@ -169,7 +170,7 @@ canvas {
 	text-align: center;
     float: right;
 	width: 60%;
-	height: 85%;
+	height: 100%;
 	z-index: 50;
 }
 
@@ -183,7 +184,7 @@ canvas {
 	border-style: solid;
 	border-color: black;
 	border-radius: 10px;
-	opacity: .5;
+	opacity: .3;
 }
 
 .current-command{
@@ -197,20 +198,27 @@ canvas {
 	font-weight: bold;
 }
 
-.command-display-flash{
-	opacity: .9;
-}
 
 .command-display-use{
-	opacity: 0.7;
+	opacity: 0.75;
+}
+
+.command-display-flash{
+	opacity: 1;
 }
 
 /*Production Dashboard*/
 
 .bar-graph-container{
+	padding-left: 20px;
+	padding-right: 20px;
   display: inline-block;
-  height: 476px;
+  height: 100%;
   width: 40%;
+}
+
+.actual-bar-graph{
+	height: 100%;
 }
 
 .bar-graph-spacing{
@@ -219,13 +227,12 @@ canvas {
 
 .bar-graph-axis{
   width: 20%;
+  height: 90%;
   float: left;
-}
-
-.bar-graph-markings{
+  display: flex;
   text-align: center;
-  list-style-type: none;
-  height: 340px;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 
@@ -239,7 +246,7 @@ canvas {
 
 .bar-container{
   display: inline-block;
-  height: 340px;
+  height: 100%;
   width: 80%;
 
 }
@@ -250,32 +257,48 @@ canvas {
 
 }
 
+.left-bar-container{
+	height: 100%;
+	display: inline-block;
+	text-align: center;
+	width: 30%;
+	margin-left: 10%;
+	float: left;
+}
+
+.right-bar-container{
+	height: 100%;
+	display: inline-block;
+	text-align: center;
+	width: 30%;
+	margin-right: 10%;
+	float: right;
+}
+
 .left-bar{
-  float: left;
-  margin-left: 10%;
-  height: 100%;
+  height: 90%;
+  width: 100%;
   background-color:black;
 }
 
 .right-bar{
-  float: right;
-  height: 100%;
-  margin-right: 10%;
+  height: 90%;
   background-color:black;
+  width: 100%;
 }
 
-.bar-labels{
+/* .bar-labels{
   font-weight: bold;
   width: 80%;
   float: right;
   padding: 0px;
-}
+} */
 
-.bar-label-left{
+/* .bar-label-left{
   float: left;
   margin-left: 22%
 }
 .bar-label-right{
   float: right;
   margin-right: 20.5%;
-}
+} */
