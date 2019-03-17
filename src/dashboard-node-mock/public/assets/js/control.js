@@ -9,5 +9,11 @@ $(document).ready(function() {
 
     $('#tab-content div').removeClass('is-active');
     $('div[data-content="' + tab + '"]').addClass('is-active');
+    console.log(tab);
+
   });
+  $('#startProduction').on('click', function(){
+    socket.emit("production", {on: true});
+  });
+
 })

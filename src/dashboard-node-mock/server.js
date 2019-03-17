@@ -13,6 +13,12 @@ var oscServer = new osc.Server(12345, '127.0.0.1');
 const createCSVWriter = require('csv-writer').createObjectCsvWriter;
 var csvTimeWriter, csvFFTWriters;
 
+const sendRate = 0.25; //In fraction per second
+const samplesPerSecond = 250;
+var samplesToSend = samplesPerSecond * sendRate;
+var toSend = [];
+var mode = "training";
+
 //Will determine if collecting and sending to file currently.
 //Other values will only be updated if collecting is true!
 var collecting = false;
@@ -185,25 +191,38 @@ OpenBCI GUI must be set to communicate on this port for fft and time data */
 // var client = new UDPClient(12345, "127.0.0.1");
 
 oscServer.on("message", function (data) {
+
     let time = getTimeValue();//Milliseconds since January 1 1970. Adjust?
     let dataWithoutFirst = [];
 
     let toWrite = {'time': time, 'data': data.slice(1), 'direction': direction};
-    if (data[0] == 'fft') {
-      if (collecting) {
-        appendSample(toWrite, type="fft"); // Write to file
+
+    if(mode == "production"){
+      toSend.push(toWrite);
+      if(toSend.length > samplesToSend){
+        io.sockets.emit('timeseries', {'data': toSend});
+        toSend = [];
       }
-      io.sockets.emit('fft', {'time': time, 'eeg': data.slice(1)});
-      // Regardless of if we're collecting, we're always sending data to client
-      // This data is used to make the graphs
+
     }
-    else {
-      if (collecting) {
-        appendSample(toWrite, type="time");
+    else{
+      if (data[0] == 'fft') {
+        if (collecting) {
+          appendSample(toWrite, type="fft"); // Write to file
+        }
+        io.sockets.emit('fft', {'time': time, 'eeg': data.slice(1)});
+        // Regardless of if we're collecting, we're always sending data to client
+        // This data is used to make the graphs
       }
-      io.sockets.emit('timeseries', {'time': time, 'eeg': data.slice(1)});
-      //This data is used to make the graphs
+      else {
+        if (collecting) {
+          appendSample(toWrite, type="time");
+        }
+        io.sockets.emit('timeseries', {'time': time, 'eeg': data.slice(1)});
+        //This data is used to make the graphs
+      }
     }
+
       // console.log(data);
 });
 
@@ -342,6 +361,12 @@ function endTest(saved){
 io.on('connection', function(socket){
   console.log('A user connected');
 
+  if(mode == "production"){
+    socket.on("Ship to ML", function(data){
+      io.sockets.emit('ML', {'data': data});
+    });
+  }
+
   socket.on('stop', function(){
       clearInterval(collectionTimer);
       collecting = false;
@@ -349,6 +374,7 @@ io.on('connection', function(socket){
   });
 
   socket.on('collectQueue', function(clientRequest){
+    mode = "training";
     timeSamples = [timeHeaderToWrite];
     collectQueue = clientRequest['queue'];
     trialName = clientRequest['trialName']
@@ -391,9 +417,16 @@ io.on('connection', function(socket){
         }
         time++;
     }, 1000);
+
+
+
   });
-
-
+  //Production
+  socket.on('production', function(data){
+    toSend = [];
+    mode = "production";
+    console.log(mode);
+  });
 
   // socket.on('collect', function(collectsocket){
   //   /* From the client when a button is clicked a collect message will be sent! */

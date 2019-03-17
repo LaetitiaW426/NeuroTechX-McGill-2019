@@ -1,4 +1,21 @@
+# osX extra stuff
 .DS_Store
 node_modules
+<<<<<<< HEAD
+
+# vscode specific files
+settings.json
+launch.json
+
+
+# ignore python temporary and cache files
+__pycache__/
+*.py[cod]
+
+# Django stuff:
+*.log
+*.pot
+=======
 settings.json
 data
+>>>>>>> 438e6f56b6bf49d3cff1849e1324f88d4b025728
