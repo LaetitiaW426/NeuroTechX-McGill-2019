@@ -218,7 +218,7 @@ canvas {
 }
 
 .actual-bar-graph{
-	height: 100%;
+	height: 80%;
 }
 
 .bar-graph-spacing{
@@ -230,7 +230,6 @@ canvas {
   height: 90%;
   float: left;
   display: flex;
-  text-align: center;
   flex-direction: column;
   justify-content: space-between;
 }
@@ -285,6 +284,19 @@ canvas {
   height: 90%;
   background-color:black;
   width: 100%;
+}
+
+
+.production-controls{
+	width: 80%;
+	height: 20%;
+	float: right;
+	text-align: center;
+
+}
+
+.production-start{
+	margin-top: 20px;
 }
 
 /* .bar-labels{
