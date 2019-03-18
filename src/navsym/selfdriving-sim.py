@@ -16,12 +16,14 @@ CONTROLS:
   1-9 - load scene (1.txt, 2.txt, etc.) 
   0 - load empty scene
 """
+
 import arcade
 import math
-# import numpy as np
-import os
-# from typing import List, Tuple
+import numpy as np
 from arcade import color as color
+import os #used for doing path manipulation
+import importlib
+strats = importlib.import_module("strageties") #custom import module
 
 #initial setup
 SCREEN_WIDTH =  800
@@ -31,10 +33,9 @@ SENSOR_DISTANCE = 100
 
 CHAIR_FORWARD_SPEED = 5.0
 CHAIR_ROTATIONAL_SPEED = math.radians(5)# convert degs to rads
+# updates per second (~currently unused~)
 # FPS = 60
-#updates per second (currently unused)
 # UPS = 20
-
 
 class NavGame(arcade.Window):
   def __init__(self):
@@ -43,12 +44,12 @@ class NavGame(arcade.Window):
     
     # declare local variables
     self.walls = []
+    self.mute_output = False
     
     arcade.set_background_color(color.WHITE)
 
   def on_draw(self):
     arcade.start_render()
-    # print(1)
     # Draw each sprite object
     for w in self.walls:
       w.draw()
@@ -92,7 +93,6 @@ class NavGame(arcade.Window):
     elif (symbol == arcade.key.KEY_0):
       self.walls.clear()
 
-
   def on_key_release(self, symbol, modifiers):
     self.chair.set_motion("")
 
@@ -131,7 +131,6 @@ class NavGame(arcade.Window):
       else:
         raise Exception(f"Invalid line {line}")  
 
-
 class Chair():
   def __init__(self, x=0, y=0, theta=0):
     self.x = float(x)
@@ -151,12 +150,22 @@ class Chair():
     self.sensors.append((0,0,0))
     self.sensors.append((0,0,math.radians(-30)))
 
-    self.next_motion = ""
+    self.next_motion = "" 
+    self.strageties = []
+
+    # share parameters with strats
+    strats.set_params(chair_size=20)
 
   def set_position(self, x, y, theta):
     self.x = float(x)
     self.y = float(y)
     self.theta = float(theta)
+
+  def make_predictions(self):
+    """
+    Calculate the probability of left,right, fwd, stop based on sensors in this moment
+    """
+    self.pstop = strats.AVOID_FORWARD_WALL(self.sensors, self.sensor_distances).pstop
 
   def update(self):
     if self.next_motion == "forward":
@@ -170,7 +179,8 @@ class Chair():
       pass
     else:
       print(f"invalid instruction: {self.next_motion}")
-
+    #predict motions
+    self.make_predictions()
     # self.next_motion =""
     
   # def scan_sensors(self):
@@ -182,7 +192,7 @@ class Chair():
     arcade.draw_rectangle_filled(self.x, self.y, 20, 20, 
       color=color.BLUE, tilt_angle=math.degrees(self.theta))
 
-    for i, s in enumerate(self.sensors):
+    for i, _ in enumerate(self.sensors):
       if i >= len(self.sensor_distances):
         break
       arcade.draw_text(str(i) + ": " + str(int(self.sensor_distances[i])), 
@@ -202,7 +212,6 @@ class Chair():
         color=color.PINK,
         line_width=1
       )
-
 
   def scan(self, walls):
     """
