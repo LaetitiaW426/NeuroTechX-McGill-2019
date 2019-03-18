@@ -44,7 +44,7 @@ $(document).ready(function() {
           trialName = $('#trial-name').val();
           $('#btn-collect').toggleClass('btn-danger');
           $('#btn-collect').html("Stop");
-          $('#command-display').toggleClass('command-display-flash', 10000);
+          $('#command-display').toggleClass('command-display-flash');
           //For each element in the queue, push their direction and duration
           $('#commandList').children('div').each(function () {
               var itemDuration = $(this).data("duration");
@@ -84,17 +84,21 @@ $(document).ready(function() {
         $('#current-command').html(direction);
         $('#collectTime').html(durationLeft);
         let j = 0;
-        let time = 0;
+        let time = 1;
+        // $('#command-display').addClass('command-display-use');
 
         //Controlling the timer.
         collectionTimer = setInterval(function(){
             if (time < totalTime) {
+                $('#command-display').addClass('command-display-use')
                 if($('#command-display').hasClass('command-display-flash')){
                   $('#command-display').removeClass('command-display-flash')
                 }
+
               if (time >= times[j]){
               //This means we've gotten to the end of element j's duration
-                $('#command-display').toggleClass('command-display-flash', 10000);
+                console.log("next command");
+                $('#command-display').addClass('command-display-flash');
                 j += 1;
                 direction = queue[j][0];
                 $('#current-command').html(direction); //Setup direction again
@@ -106,6 +110,7 @@ $(document).ready(function() {
               time++;
             }
             else {
+                $('#command-display').removeClass('command-display-use');
                 $('#btn-collect').toggleClass('btn-danger');
                 $('#btn-collect').html('Collect');
                 $('#current-command').html("--");
@@ -123,6 +128,7 @@ $(document).ready(function() {
           $('#btn-collect').html("Collect");
           $('#current-command').html("--");
           $('#collectTime').html("N/A");
+          $('#command-display').removeClass('command-display-use');
 
       }
       else{

@@ -14,6 +14,13 @@ $(document).ready(function() {
   });
   $('#startProduction').on('click', function(){
     socket.emit("production", {on: true});
+    $('#startProduction').toggleClass('btn-danger');
+    if ($('#startProduction').hasClass('btn-danger')){
+        $('#startProduction').html('Stop');
+    }
+    else{
+        $('#startProduction').html('Start');
+    }
   });
 
 })

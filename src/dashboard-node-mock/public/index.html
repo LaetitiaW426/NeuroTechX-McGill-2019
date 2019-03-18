@@ -78,12 +78,6 @@
     <div id="tab-content">
         <!-- "is-active" toggles upon tab switch -->
         <div class="is-active" data-content='1'>
-                <div class="overhead">
-                    <span class="dashboard-title"> Training </span>
-
-                    <!-- <img class="logo-image" src="assets/img/mcgill-neurotech.png" alt="McGill Neurotech"> -->
-                </div>
-                <hr id = "divide">
                 <!-- "container-queue" is for left half of dashboard that holds queue information -->
                 <div class="container-queue">
                     <!--"header" class name is used for Queue and Display headers -->
@@ -145,33 +139,42 @@
                 </div>
             </div>
         <div data-content="2">
-            <div class="overhead">
-                <span class="dashboard-title"> Production </span>
-            </div>
-            <hr id = "divide">
             <div class="bar-graph-container">
-              <div class="bar-graph-spacing"> </div>
               <div class="actual-bar-graph">
                 <div class = "bar-graph-axis">
-                  <ul class = "bar-graph-markings">
+                    <div> --100%--- </div>
+                    <div> --80%--- </div>
+                    <div> --60%--- </div>
+                    <div> --40%--- </div>
+                    <div> --20%--- </div>
+                    <div> --0%--- </div>
+
+
+                  <!-- <ul class = "bar-graph-markings">
                     <li class="percent-label">---100%---</li>
                     <li class="percent-label">---80%---</li>
                     <li class="percent-label">---60%---</li>
                     <li class="percent-label">---40%---</li>
                     <li class="percent-label">---20%---</li>
                     <li class="percent-label bottom-label">---0%---</li>
-                  </ul>
+                  </ul> -->
                 </div>
                 <div class = "bar-container">
-                  <div class = "bar left-bar" id = "left-bar-control">
-                  </div>
-                  <div class = "bar right-bar" id = "right-bar-control">
-                  </div>
+                    <div class = "left-bar-container">
+                        <div class = "bar left-bar" id = "left-bar-control">
+                        </div>
+                        <span class = "bar-label-left"><strong> Left </strong></span>
+                    </div>
+                    <div class = "right-bar-container">
+                        <div class = "bar right-bar" id = "right-bar-control">
+                        </div>
+                        <span class="bar-label-right"> <strong>Right </strong> </span>
+
+                    </div>
                 </div>
-                <div class = "bar-labels">
-                  <span class = "bar-label-left"> Left </span>
-                  <span class="bar-label-right"> Right </span>
-                </div>
+            </div>
+            <div class='production-controls'>
+                <button class="btn-primary btn production-start" id=startProduction>Start</button>
             </div>
         </div>
         <div class = "container-display">
@@ -189,7 +192,6 @@
                 </div>
             </div>
         </div>
-        <button id="startProduction">Start</button>
     </div>
 </section>
 <script>
