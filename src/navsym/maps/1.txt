@@ -1,0 +1,7 @@
+# chair initial position (x,y,radians)
+C:50,50,1.5
+
+# wall values (x0, y0, x1, y1)
+W:100,100,100,300
+W:150,100,150,300
+W:50,350,200,350

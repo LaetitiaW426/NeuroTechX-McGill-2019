@@ -1,7 +1,6 @@
 # osX extra stuff
 .DS_Store
 node_modules
-<<<<<<< HEAD
 
 # vscode specific files
 settings.json
@@ -15,7 +14,6 @@ __pycache__/
 # Django stuff:
 *.log
 *.pot
-=======
-settings.json
+
+# ignore data files (large files and not usefull for small tests)
 data
->>>>>>> 438e6f56b6bf49d3cff1849e1324f88d4b025728
